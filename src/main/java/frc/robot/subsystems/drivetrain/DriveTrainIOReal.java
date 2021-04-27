@@ -59,6 +59,8 @@ public class DriveTrainIOReal implements DriveTrainIO {
   public void updateInputs(DriveTrainInputs inputs) {
     inputs.leftPositionRadians = leftLeader.getSelectedSensorPosition() * radiansPerTick;
     inputs.rightPositionRadians = rightLeader.getSelectedSensorPosition() * radiansPerTick;
+    inputs.leftCurrentAmps = leftLeader.getStatorCurrent();
+    inputs.rightCurrentAmps = rightLeader.getStatorCurrent();
     inputs.gyroAngleDegrees = ahrs.getAngle();
   }
 

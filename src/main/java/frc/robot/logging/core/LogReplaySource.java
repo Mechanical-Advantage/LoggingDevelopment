@@ -14,13 +14,15 @@ public interface LogReplaySource {
    * Called before the logging system begins reporting data. This should be used
    * to connect to files, find network devices, start threads, etc.
    */
-  public void start();
+  public default void start() {
+  };
 
   /**
    * Called when the code shuts down cleanly. Note that this will NOT be called
    * when the robot is powered off.
    */
-  public void end();
+  public default void end() {
+  };
 
   /**
    * Called every loop cycle to get the next set of data. Fields from previous

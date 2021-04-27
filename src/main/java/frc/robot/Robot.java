@@ -29,14 +29,6 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     // Set up logging system
     Logger logger = Logger.getInstance();
-    if (isReal()) {
-      // logger.addDataReceiver(new LogDB());
-    } else {
-      // logger.setReplaySource(new LogDB());
-    }
-    if (isSimulation() || Constants.tuningMode) {
-      // logger.addDataReceiver(new NetLog());
-    }
     setUseTiming(isReal());
     logger.start();
 

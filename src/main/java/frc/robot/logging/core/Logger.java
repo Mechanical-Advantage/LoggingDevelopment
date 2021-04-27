@@ -136,7 +136,7 @@ public class Logger {
    * simulator, use this method to record extra data based on the original inputs.
    * 
    * @param key   The name of the field to record. It will be stored under
-   *              "/Outputs"
+   *              "/RealOutputs" or "/ReplayOutputs"
    * @param value The value of the field in one of the accepted types.
    */
   public void recordOutput(String key, Object value) {
