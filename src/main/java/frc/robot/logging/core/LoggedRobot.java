@@ -82,8 +82,11 @@ public class LoggedRobot extends IterativeRobotBase {
 
       double loopCycleStart = Timer.getFPGATimestamp();
       Logger.getInstance().periodic();
+      double userCodeStart = Timer.getFPGATimestamp();
       loopFunc();
-      Logger.getInstance().recordOutput("CycleLenthMS", (Timer.getFPGATimestamp() - loopCycleStart) * 1000);
+      double loopCycleEnd = Timer.getFPGATimestamp();
+      Logger.getInstance().recordOutput("FullCycleMS", (loopCycleEnd - loopCycleStart) * 1000);
+      Logger.getInstance().recordOutput("UserCodeMS", (loopCycleEnd - userCodeStart) * 1000);
     }
   }
 
