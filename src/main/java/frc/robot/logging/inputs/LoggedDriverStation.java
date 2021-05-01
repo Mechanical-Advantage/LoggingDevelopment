@@ -130,9 +130,7 @@ public class LoggedDriverStation {
         // These values are not updated on every cycle and need to interface with the
         // HAL. This is slower, so wait until the joystick changes.
         if (!oldName.equals(joystick.name)) {
-          System.out.println("\"" + oldName + "\" -> \"" + joystick.name + "\"");
           joystick.type = driverStation.getJoystickType(id);
-          System.out.println("Type=" + Integer.toString(joystick.type));
           joystick.xbox = driverStation.getJoystickIsXbox(id);
           joystick.axisTypes = new int[driverStation.getStickAxisCount(id)];
           for (int axis = 0; axis < joystick.axes.length; axis++) {
