@@ -113,21 +113,31 @@ public class LoggedDriverStation {
 
       for (int id = 0; id < joystickInputs.length; id++) {
         JoystickInputs joystick = joystickInputs[id];
+        String oldName = joystick.name;
         joystick.name = driverStation.getJoystickName(id);
-        joystick.type = driverStation.getJoystickType(id);
-        joystick.xbox = driverStation.getJoystickIsXbox(id);
         joystick.buttons = driverStation.getStickButtons(id);
 
         joystick.axes = new double[driverStation.getStickAxisCount(id)];
-        joystick.axisTypes = new int[driverStation.getStickAxisCount(id)];
         for (int axis = 0; axis < joystick.axes.length; axis++) {
           joystick.axes[axis] = driverStation.getStickAxis(id, axis);
-          joystick.axisTypes[axis] = driverStation.getJoystickAxisType(id, axis);
         }
 
         joystick.povs = new int[driverStation.getStickPOVCount(id)];
         for (int pov = 0; pov < joystick.povs.length; pov++) {
           joystick.povs[pov] = driverStation.getStickPOV(id, pov);
+        }
+
+        // These values are not updated on every cycle and need to interface with the
+        // HAL. This is slower, so wait until the joystick changes.
+        if (!oldName.equals(joystick.name)) {
+          System.out.println("\"" + oldName + "\" -> \"" + joystick.name + "\"");
+          joystick.type = driverStation.getJoystickType(id);
+          System.out.println("Type=" + Integer.toString(joystick.type));
+          joystick.xbox = driverStation.getJoystickIsXbox(id);
+          joystick.axisTypes = new int[driverStation.getStickAxisCount(id)];
+          for (int axis = 0; axis < joystick.axes.length; axis++) {
+            joystick.axisTypes[axis] = driverStation.getJoystickAxisType(id, axis);
+          }
         }
       }
     }
