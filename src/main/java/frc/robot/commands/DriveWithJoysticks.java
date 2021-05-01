@@ -12,6 +12,7 @@ import frc.robot.subsystems.drivetrain.DriveTrain;
 public class DriveWithJoysticks extends CommandBase {
 
   private static final double deadband = 0.1;
+  private static final double maxSpeed = 0.25;
 
   private final DriveTrain driveTrain;
   private final DoubleSupplier leftY;
@@ -44,7 +45,7 @@ public class DriveWithJoysticks extends CommandBase {
   public void execute() {
     double baseSpeed = processAxis(leftY.getAsDouble() * -1);
     double turnSpeed = processAxis(rightX.getAsDouble());
-    driveTrain.drive(baseSpeed + turnSpeed, baseSpeed - turnSpeed);
+    driveTrain.drive((baseSpeed + turnSpeed) * maxSpeed, (baseSpeed - turnSpeed) * maxSpeed);
   }
 
   // Called once the command ends or is interrupted.
