@@ -27,5 +27,5 @@ public interface LogDataReceiver {
    * Called every loop cycle when a new entry is complete. This data can be
    * processed immediately or queued for later.
    */
-  public void putEntry(LogEntry entry);
+  public void putEntry(LogTable entry);
 }

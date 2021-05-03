@@ -4,8 +4,7 @@
 
 package frc.robot.subsystems.drivetrain;
 
-import java.util.Map;
-
+import frc.robot.logging.core.LogTable;
 import frc.robot.logging.core.LoggableInputs;
 
 /** The set of loggable inputs for the drive subsystem. */
@@ -16,16 +15,19 @@ public class DriveTrainInputs implements LoggableInputs {
   public double rightCurrentAmps = 0.0;
   public double gyroAngleDegrees = 0.0;
 
-  public Map<String, Object> toMap() {
-    return Map.of("LeftPositionRadians", leftPositionRadians, "RightPositionRadians", rightPositionRadians,
-        "LeftCurrentAmps", leftCurrentAmps, "RightCurrentAmps", rightCurrentAmps, "GyroAngleDegrees", gyroAngleDegrees);
+  public void toLog(LogTable table) {
+    table.put("LeftPositionRadians", leftPositionRadians);
+    table.put("RightPositionRadians", rightPositionRadians);
+    table.put("LeftCurrentAmps", leftCurrentAmps);
+    table.put("RightCurrentAmps", rightCurrentAmps);
+    table.put("GyroAngleDegrees", gyroAngleDegrees);
   }
 
-  public void fromMap(Map<String, Object> map) {
-    leftPositionRadians = (double) map.getOrDefault("LeftPositionRadians", leftPositionRadians);
-    rightPositionRadians = (double) map.getOrDefault("RightPositionRadians", rightPositionRadians);
-    leftCurrentAmps = (double) map.getOrDefault("LeftCurrentAmps", leftPositionRadians);
-    rightCurrentAmps = (double) map.getOrDefault("RightCurrentAmps", rightPositionRadians);
-    gyroAngleDegrees = (double) map.getOrDefault("GyroAngleDegrees", gyroAngleDegrees);
+  public void fromLog(LogTable table) {
+    leftPositionRadians = table.getDouble("LeftPositionRadians", leftPositionRadians);
+    rightPositionRadians = table.getDouble("RightPositionRadians", rightPositionRadians);
+    leftCurrentAmps = table.getDouble("LeftCurrentAmps", leftPositionRadians);
+    rightCurrentAmps = table.getDouble("RightCurrentAmps", rightPositionRadians);
+    gyroAngleDegrees = table.getDouble("GyroAngleDegrees", gyroAngleDegrees);
   }
 }

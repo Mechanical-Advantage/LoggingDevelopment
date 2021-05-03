@@ -4,11 +4,10 @@
 
 package frc.robot.logging.inputs;
 
-import java.util.Map;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import frc.robot.Robot;
+import frc.robot.logging.core.LogTable;
 import frc.robot.logging.core.LoggableInputs;
 import frc.robot.logging.core.Logger;
 
@@ -50,21 +49,26 @@ public class LoggedDriverStation {
     public double matchTime = 0.0;
     public String gameSpecificMessage = "";
 
-    public Map<String, Object> toMap() {
-      return Map.of("Enabled", enabled, "Autonomous", autonomous, "Test", test, "EmergencyStop", emergencyStop,
-          "FMSAttached", fmsAttached, "DSAttached", dsAttached, "MatchTime", matchTime, "GameSpecificMessage",
-          gameSpecificMessage);
+    public void toLog(LogTable table) {
+      table.put("Enabled", enabled);
+      table.put("Autonomous", autonomous);
+      table.put("Test", test);
+      table.put("EmergencyStop", emergencyStop);
+      table.put("FMSAttached", fmsAttached);
+      table.put("DSAttached", dsAttached);
+      table.put("MatchTime", matchTime);
+      table.put("GameSpecificMessage", gameSpecificMessage);
     }
 
-    public void fromMap(Map<String, Object> map) {
-      enabled = (boolean) map.getOrDefault("Enabled", enabled);
-      autonomous = (boolean) map.getOrDefault("Autonomous", autonomous);
-      test = (boolean) map.getOrDefault("Test", test);
-      emergencyStop = (boolean) map.getOrDefault("EmergencyStop", emergencyStop);
-      fmsAttached = (boolean) map.getOrDefault("FMSAttached", fmsAttached);
-      dsAttached = (boolean) map.getOrDefault("DSAttached", dsAttached);
-      matchTime = (double) map.getOrDefault("MatchTime", matchTime);
-      gameSpecificMessage = (String) map.getOrDefault("GameSpecificMessage", gameSpecificMessage);
+    public void fromLog(LogTable table) {
+      enabled = table.getBoolean("Enabled", enabled);
+      autonomous = table.getBoolean("Autonomous", autonomous);
+      test = table.getBoolean("Test", test);
+      emergencyStop = table.getBoolean("EmergencyStop", emergencyStop);
+      fmsAttached = table.getBoolean("FMSAttached", fmsAttached);
+      dsAttached = table.getBoolean("DSAttached", dsAttached);
+      matchTime = table.getDouble("MatchTime", matchTime);
+      gameSpecificMessage = table.getString("GameSpecificMessage", gameSpecificMessage);
     }
   }
 
@@ -80,19 +84,24 @@ public class LoggedDriverStation {
     public int[] axisTypes = {};
     public int[] povs = {};
 
-    public Map<String, Object> toMap() {
-      return Map.of("Name", name, "Type", type, "Xbox", xbox, "Buttons", buttons, "Axes", axes, "AxisTypes", axisTypes,
-          "POVs", povs);
+    public void toLog(LogTable table) {
+      table.put("Name", name);
+      table.put("Type", type);
+      table.put("Xbox", xbox);
+      table.put("Buttons", buttons);
+      table.put("Axes", axes);
+      table.put("AxisTypes", axisTypes);
+      table.put("POVs", povs);
     }
 
-    public void fromMap(Map<String, Object> map) {
-      name = (String) map.getOrDefault("Name", name);
-      type = (int) map.getOrDefault("Type", type);
-      xbox = (boolean) map.getOrDefault("Xbox", xbox);
-      buttons = (int) map.getOrDefault("Buttons", buttons);
-      axes = (double[]) map.getOrDefault("Axes", axes);
-      axisTypes = (int[]) map.getOrDefault("AxisTypes", axisTypes);
-      povs = (int[]) map.getOrDefault("POVs", povs);
+    public void fromLog(LogTable table) {
+      name = table.getString("Name", name);
+      type = table.getInteger("Type", type);
+      xbox = table.getBoolean("Xbox", xbox);
+      buttons = table.getInteger("Buttons", buttons);
+      axes = table.getDoubleArray("Axes", axes);
+      axisTypes = table.getIntegerArray("AxisTypes", axisTypes);
+      povs = table.getIntegerArray("POVs", povs);
     }
   }
 

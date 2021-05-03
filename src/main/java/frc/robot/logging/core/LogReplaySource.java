@@ -28,5 +28,5 @@ public interface LogReplaySource {
    * Called every loop cycle to get the next set of data. Fields from previous
    * cycles will NOT be preserved.
    */
-  public LogEntry getEntry();
+  public LogTable getEntry();
 }

@@ -12,8 +12,9 @@ import java.util.Map;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.logging.core.LogTable;
 import frc.robot.logging.core.LoggableInputs;
-import frc.robot.logging.core.LogEntry.LoggableType;
+import frc.robot.logging.core.LogTable.LoggableType;
 import edu.wpi.first.networktables.NetworkTable;
 
 /**
@@ -47,7 +48,7 @@ public class LoggedNetworkTables implements LoggableInputs {
     tables.add(prefix);
   }
 
-  public Map<String, Object> toMap() {
+  public void toLog(LogTable table) {
     Map<String, Object> map = new HashMap<String, Object>();
 
     for (int tableId = 0; tableId < tables.size(); tableId++) {
@@ -57,39 +58,37 @@ public class LoggedNetworkTables implements LoggableInputs {
         String key = entry.getName().substring(1);
         switch (entry.getType()) {
           case kBoolean:
-            map.put(key, entry.getBoolean(false));
+            table.put(key, entry.getBoolean(false));
             break;
           case kBooleanArray:
-            map.put(key, entry.getBooleanArray(new boolean[0]));
+            table.put(key, entry.getBooleanArray(new boolean[0]));
             break;
           case kDouble:
-            map.put(key, entry.getDouble(0.0));
+            table.put(key, entry.getDouble(0.0));
             break;
           case kDoubleArray:
-            map.put(key, entry.getDoubleArray(new double[0]));
+            table.put(key, entry.getDoubleArray(new double[0]));
             break;
           case kString:
-            map.put(key, entry.getString(""));
+            table.put(key, entry.getString(""));
             break;
           case kStringArray:
-            map.put(key, entry.getStringArray(new String[0]));
+            table.put(key, entry.getStringArray(new String[0]));
             break;
           case kRaw:
-            map.put(key, entry.getRaw(new byte[0]));
+            table.put(key, entry.getRaw(new byte[0]));
           default:
             break;
         }
       }
     }
-
-    return map;
   }
 
-  public void fromMap(Map<String, Object> map) {
-    NetworkTable table = networkTables.getTable("/");
+  public void fromLog(LogTable table) {
+    NetworkTable netTable = networkTables.getTable("/");
 
-    for (Map.Entry<String, Object> mapEntry : map.entrySet()) {
-      NetworkTableEntry tableEntry = table.getEntry(mapEntry.getKey());
+    for (Map.Entry<String, Object> mapEntry : table.getAll(true).entrySet()) {
+      NetworkTableEntry tableEntry = netTable.getEntry(mapEntry.getKey());
 
       switch (LoggableType.identify(mapEntry.getValue())) {
         case Boolean:

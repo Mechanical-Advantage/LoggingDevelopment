@@ -4,22 +4,18 @@
 
 package frc.robot.logging.core;
 
-import java.util.Map;
-
 /**
  * A set of values which can be logged and replayed (for example, the hardware
- * inputs for a subsystem). Data must be represented as a map with String keys
- * and values as one of the following types: integer, integer[], double,
- * double[], String, String[], boolean, boolean[], byte, byte[]
+ * inputs for a subsystem). Data is stored in LogTable objects.
  */
 public interface LoggableInputs {
   /**
-   * Returns a Map representation of the data to log.
+   * Updates a LogTable with the data to log.
    */
-  public Map<String, Object> toMap();
+  public void toLog(LogTable table);
 
   /**
-   * Updates data based on a provided Map representation.
+   * Updates data based on a LogTable.
    */
-  public void fromMap(Map<String, Object> map);
+  public void fromLog(LogTable table);
 }

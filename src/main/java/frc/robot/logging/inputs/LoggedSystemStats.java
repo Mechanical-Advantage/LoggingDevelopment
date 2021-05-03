@@ -4,11 +4,9 @@
 
 package frc.robot.logging.inputs;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.logging.core.LogTable;
 import frc.robot.logging.core.LoggableInputs;
 
 /**
@@ -29,20 +27,18 @@ public class LoggedSystemStats implements LoggableInputs {
     return instance;
   }
 
-  public Map<String, Object> toMap() {
-    Map<String, Object> map = new HashMap<String, Object>();
-    map.put("BatteryVoltage", RobotController.getBatteryVoltage());
-    map.put("BrownedOut", RobotController.isBrownedOut());
-    map.put("CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
+  public void toLog(LogTable table) {
+    table.put("BatteryVoltage", RobotController.getBatteryVoltage());
+    table.put("BrownedOut", RobotController.isBrownedOut());
+    table.put("CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
     double[] pdpCurrents = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     for (int channel = 0; channel < 16; channel++) {
       pdpCurrents[channel] = pdp.getCurrent(channel);
     }
-    map.put("PDPCurrents", pdpCurrents);
-    return map;
+    table.put("PDPCurrents", pdpCurrents);
   }
 
-  public void fromMap(Map<String, Object> map) {
+  public void fromLog(LogTable table) {
     // Ignore replayed inputs
   }
 }
