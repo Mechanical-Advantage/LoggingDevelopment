@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.logging.core.LoggedRobot;
 import frc.robot.logging.core.Logger;
+import frc.robot.logging.inputs.LoggedNetworkTables;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -30,6 +31,7 @@ public class Robot extends LoggedRobot {
     // Set up logging system
     Logger logger = Logger.getInstance();
     setUseTiming(isReal());
+    LoggedNetworkTables.getInstance().addTable("/LiveWindow");
     logger.start();
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
