@@ -49,8 +49,6 @@ public class LoggedNetworkTables implements LoggableInputs {
   }
 
   public void toLog(LogTable table) {
-    Map<String, Object> map = new HashMap<String, Object>();
-
     for (int tableId = 0; tableId < tables.size(); tableId++) {
       NetworkTableEntry[] entries = networkTables.getEntries(tables.get(tableId), 0);
       for (int entryId = 0; entryId < entries.length; entryId++) {
