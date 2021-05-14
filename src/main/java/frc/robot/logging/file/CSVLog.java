@@ -13,8 +13,8 @@ import frc.robot.logging.core.LogDataReceiver;
 import frc.robot.logging.core.LogTable;
 import frc.robot.logging.core.LogTable.LoggableType;
 
-/** Logs and replays log values from a CSV file. */
-public class LogCSV implements LogDataReceiver {
+/** Records log values to a CSV file. */
+public class CSVLog implements LogDataReceiver {
 
   private static final String filename = "/home/lvuser/robotlog.csv";
   FileWriter csvWriter;
