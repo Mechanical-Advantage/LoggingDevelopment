@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.logging.core.LoggedRobot;
 import frc.robot.logging.core.Logger;
+import frc.robot.logging.file.SQLiteLog;
 import frc.robot.logging.inputs.LoggedNetworkTables;
 
 /**
@@ -32,6 +33,7 @@ public class Robot extends LoggedRobot {
     Logger logger = Logger.getInstance();
     setUseTiming(isReal());
     LoggedNetworkTables.getInstance().addTable("/LiveWindow");
+    logger.addDataReceiver(new SQLiteLog());
     logger.start();
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
