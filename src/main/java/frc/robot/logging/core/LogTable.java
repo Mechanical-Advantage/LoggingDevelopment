@@ -192,6 +192,9 @@ public class LogTable {
     Boolean, BooleanArray, Integer, IntegerArray, Double, DoubleArray, String, StringArray, Byte, ByteArray;
 
     public static LoggableType identify(Object object) {
+      if (object == null) {
+        return null;
+      }
       if (object.getClass().isArray()) {
         if (object.getClass().getComponentType() == boolean.class
             || object.getClass().getComponentType() == Boolean.class) {

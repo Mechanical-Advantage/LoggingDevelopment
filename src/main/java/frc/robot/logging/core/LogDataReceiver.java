@@ -4,6 +4,8 @@
 
 package frc.robot.logging.core;
 
+import java.util.Map;
+
 /**
  * Receives entries from the logging system during real operation or simulation.
  */
@@ -21,6 +23,13 @@ public interface LogDataReceiver {
    * when the robot is powered off.
    */
   public default void end() {
+  };
+
+  /**
+   * Provides a set of metadata to store. This method will be called whenever a
+   * new value is added or updated.
+   */
+  public default void setMetadata(Map<String, String> metadata) {
   };
 
   /**

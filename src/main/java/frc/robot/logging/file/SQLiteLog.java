@@ -6,6 +6,7 @@ package frc.robot.logging.file;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -16,7 +17,6 @@ import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.logging.core.LogDataReceiver;
 import frc.robot.logging.core.LogTable;
 import frc.robot.logging.core.LogTable.LoggableType;
@@ -29,8 +29,11 @@ public class SQLiteLog implements LogDataReceiver {
 
   private File dbFile = new File(filename);
   private SqlJetDb db;
-  private ISqlJetTable table;
+  private ISqlJetTable metadataTable;
+  private ISqlJetTable recordTable;
 
+  private Map<String, String> metadata = new HashMap<>();
+  private boolean metadataChanged = false;
   private final BlockingQueue<LogTable> queue = new LinkedBlockingQueue<LogTable>();
   private SQLiteWriter writerThread;
 
@@ -47,10 +50,12 @@ public class SQLiteLog implements LogDataReceiver {
     try {
       db = SqlJetDb.open(dbFile, true);
       db.beginTransaction(SqlJetTransactionMode.WRITE);
+      db.createTable("CREATE TABLE metadata (key TEXT NOT NULL, value TEXT NOT NULL)");
       db.createTable(
           "CREATE TABLE records (timestamp INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, value BLOB)");
       db.commit();
-      table = db.getTable("records");
+      metadataTable = db.getTable("metadata");
+      recordTable = db.getTable("records");
     } catch (SqlJetException e) {
       DriverStation.reportError("Failed to prepare log file. Data will NOT be recorded.", true);
     }
@@ -75,6 +80,11 @@ public class SQLiteLog implements LogDataReceiver {
     }
   }
 
+  public void setMetadata(Map<String, String> metadata) {
+    this.metadata = metadata;
+    metadataChanged = true;
+  }
+
   public void putEntry(LogTable entry) {
     try {
       queue.put(entry);
@@ -90,20 +100,16 @@ public class SQLiteLog implements LogDataReceiver {
       try {
         while (true) {
           Thread.sleep((long) (writeFrequencySeconds * 1000));
-          double startTime = Timer.getFPGATimestamp();
           writeAll();
-          System.out
-              .println("Wrote to DB in " + Double.toString((Timer.getFPGATimestamp() - startTime) * 1000) + " ms");
         }
       } catch (InterruptedException e) {
-        DriverStation.reportWarning("SQLite writer thread interrupted.", true);
         if (dbReady()) {
           try {
             if (db.isInTransaction()) {
               db.commit();
             }
           } catch (SqlJetException e1) {
-            DriverStation.reportWarning("Failed to write data to log file on interrupt.", true);
+            DriverStation.reportError("Failed to write data to log file on interrupt.", true);
           }
         }
       }
@@ -113,6 +119,17 @@ public class SQLiteLog implements LogDataReceiver {
       if (dbReady()) {
         try {
           db.beginTransaction(SqlJetTransactionMode.WRITE);
+
+          // Write metadata
+          if (metadataChanged) {
+            metadataTable.clear();
+            for (Map.Entry<String, String> field : metadata.entrySet()) {
+              metadataTable.insert(field.getKey(), field.getValue());
+            }
+            metadataChanged = false;
+          }
+
+          // Write records
           while (true) {
             LogTable entry = queue.poll();
             if (entry == null) {
@@ -222,14 +239,14 @@ public class SQLiteLog implements LogDataReceiver {
                 default:
                   output = null;
               }
-              table.insert(entry.getTimestamp(), field.getKey(), newType.ordinal(), output);
+              recordTable.insert(entry.getTimestamp(), field.getKey(), newType.ordinal(), output);
             }
 
             // Find removed fields
             for (Map.Entry<String, Object> field : oldMap.entrySet()) {
               if (!newMap.containsKey(field.getKey())) {
-                table.insert(entry.getTimestamp(), field.getKey(), LoggableType.identify(field.getValue()).ordinal(),
-                    null);
+                recordTable.insert(entry.getTimestamp(), field.getKey(),
+                    LoggableType.identify(field.getValue()).ordinal(), null);
               }
             }
 

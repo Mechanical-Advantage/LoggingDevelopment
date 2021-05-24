@@ -16,7 +16,7 @@ import frc.robot.logging.core.LogTable.LoggableType;
 /** Records log values to a CSV file. */
 public class CSVLog implements LogDataReceiver {
 
-  private static final String filename = "/home/lvuser/robotlog.csv";
+  private static final String filename = "/media/sda1/robotlog.csv";
   FileWriter csvWriter;
 
   public void start() {

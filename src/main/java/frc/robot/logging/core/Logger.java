@@ -5,7 +5,9 @@
 package frc.robot.logging.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.logging.inputs.*;
@@ -13,13 +15,14 @@ import frc.robot.logging.inputs.*;
 /** Central class for recording and replaying log data. */
 public class Logger {
 
-  private static final boolean debugTiming = false;
+  private static final boolean debugTiming = true;
 
   private static Logger instance;
 
   private boolean running = false;
   private LogTable entry;
   private LogTable outputTable;
+  private Map<String, String> metadata = new HashMap<>();
   private LogReplaySource replaySource;
   private List<LogDataReceiver> dataReceivers = new ArrayList<>();
   private final Timer printTimer = new Timer();
@@ -46,6 +49,17 @@ public class Logger {
    */
   public void addDataReceiver(LogDataReceiver dataReceiver) {
     dataReceivers.add(dataReceiver);
+    dataReceiver.setMetadata(metadata);
+  }
+
+  /**
+   * Adds a new metadata value.
+   */
+  public void addMetadata(String key, String value) {
+    metadata.put(key, value);
+    for (int i = 0; i < dataReceivers.size(); i++) {
+      dataReceivers.get(i).setMetadata(metadata);
+    }
   }
 
   /**
