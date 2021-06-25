@@ -6,7 +6,6 @@ package frc.robot.logging.inputs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.logging.core.LogTable;
 import frc.robot.logging.core.LoggableInputs;
-import frc.robot.logging.core.LogTable.LoggableType;
+import frc.robot.logging.core.LogTable.LogValue;
 import edu.wpi.first.networktables.NetworkTable;
 
 /**
@@ -85,36 +84,36 @@ public class LoggedNetworkTables implements LoggableInputs {
   public void fromLog(LogTable table) {
     NetworkTable netTable = networkTables.getTable("/");
 
-    for (Map.Entry<String, Object> mapEntry : table.getAll(true).entrySet()) {
+    for (Map.Entry<String, LogValue> mapEntry : table.getAll(true).entrySet()) {
       NetworkTableEntry tableEntry = netTable.getEntry(mapEntry.getKey());
 
-      switch (LoggableType.identify(mapEntry.getValue())) {
+      switch (mapEntry.getValue().type) {
         case Boolean:
-          tableEntry.setBoolean((boolean) mapEntry.getValue());
+          tableEntry.setBoolean(mapEntry.getValue().getBoolean());
           break;
         case BooleanArray:
-          tableEntry.setBooleanArray((boolean[]) mapEntry.getValue());
+          tableEntry.setBooleanArray(mapEntry.getValue().getBooleanArray());
           break;
         case Integer:
-          tableEntry.setDouble((int) mapEntry.getValue());
+          tableEntry.setDouble(mapEntry.getValue().getInteger());
           break;
         case IntegerArray:
-          tableEntry.setDoubleArray(Arrays.stream((int[]) mapEntry.getValue()).asDoubleStream().toArray());
+          tableEntry.setDoubleArray(Arrays.stream(mapEntry.getValue().getIntegerArray()).asDoubleStream().toArray());
           break;
         case Double:
-          tableEntry.setDouble((double) mapEntry.getValue());
+          tableEntry.setDouble(mapEntry.getValue().getDouble());
           break;
         case DoubleArray:
-          tableEntry.setDoubleArray((double[]) mapEntry.getValue());
+          tableEntry.setDoubleArray(mapEntry.getValue().getDoubleArray());
           break;
         case String:
-          tableEntry.setString((String) mapEntry.getValue());
+          tableEntry.setString(mapEntry.getValue().getString());
           break;
         case StringArray:
-          tableEntry.setStringArray((String[]) mapEntry.getValue());
+          tableEntry.setStringArray(mapEntry.getValue().getStringArray());
           break;
         case ByteArray:
-          tableEntry.setRaw((byte[]) mapEntry.getValue());
+          tableEntry.setRaw(mapEntry.getValue().getByteArray());
           break;
         default:
           break;

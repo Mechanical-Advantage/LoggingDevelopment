@@ -7,14 +7,13 @@ package frc.robot.logging.file;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.logging.core.LogDataReceiver;
 import frc.robot.logging.core.LogTable;
-import frc.robot.logging.core.LogTable.LoggableType;
+import frc.robot.logging.core.LogTable.LogValue;
 
 /** Records log values to a custom binary format. */
 public class ByteLog implements LogDataReceiver {
@@ -45,14 +44,15 @@ public class ByteLog implements LogDataReceiver {
     }
   }
 
-  private void writeField(String key, Object value) {
+  private void writeField(String key, LogValue value) {
     try {
       if (!keyIDs.containsKey(key)) {
         keyIDs.put(key, nextKeyID);
         file.write(ByteEncoder.encodeKey(nextKeyID, key).array());
         nextKeyID++;
       }
-      file.write(ByteEncoder.encodeValue(keyIDs.get(key), value).array());
+      byte[] bytes = ByteEncoder.encodeValue(keyIDs.get(key), value).array();
+      file.write(bytes);
     } catch (IOException e) {
       DriverStation.reportError("Failed to write data to log file.", true);
     }
@@ -60,60 +60,16 @@ public class ByteLog implements LogDataReceiver {
 
   public void putEntry(LogTable entry) {
     try {
-      Map<String, Object> newMap = entry.getAll(false);
-      Map<String, Object> oldMap = lastEntry.getAll(false);
+
+      Map<String, LogValue> newMap = entry.getAll(false);
+      Map<String, LogValue> oldMap = lastEntry.getAll(false);
 
       // Record timestamp
       file.write(ByteEncoder.encodeTimestamp(entry.getTimestamp()).array());
-
-      for (Map.Entry<String, Object> field : newMap.entrySet()) {
+      for (Map.Entry<String, LogValue> field : newMap.entrySet()) {
         // Check if field has changed
-        Object newValue = field.getValue();
-        LoggableType newType = LoggableType.identify(newValue);
-        boolean fieldChanged = true;
-        if (oldMap.containsKey(field.getKey())) {
-          Object oldValue = oldMap.get(field.getKey());
-          LoggableType oldType = LoggableType.identify(oldValue);
-          if (newType == oldType) {
-            switch (newType) {
-              case Boolean:
-              case Integer:
-              case Double:
-              case String:
-              case Byte:
-                if (newValue.equals(oldValue)) {
-                  fieldChanged = false;
-                }
-                break;
-              case BooleanArray:
-                if (Arrays.equals((boolean[]) newValue, (boolean[]) oldValue)) {
-                  fieldChanged = false;
-                }
-                break;
-              case IntegerArray:
-                if (Arrays.equals((int[]) newValue, (int[]) oldValue)) {
-                  fieldChanged = false;
-                }
-                break;
-              case DoubleArray:
-                if (Arrays.equals((double[]) newValue, (double[]) oldValue)) {
-                  fieldChanged = false;
-                }
-                break;
-              case StringArray:
-                if (Arrays.equals((String[]) newValue, (String[]) oldValue)) {
-                  fieldChanged = false;
-                }
-                break;
-              case ByteArray:
-                if (Arrays.equals((byte[]) newValue, (byte[]) oldValue)) {
-                  fieldChanged = false;
-                }
-                break;
-            }
-          }
-        }
-        if (!fieldChanged) {
+        LogValue newValue = field.getValue();
+        if (!newValue.hasChanged(oldMap.get(field.getKey()))) {
           continue;
         }
 
@@ -122,7 +78,7 @@ public class ByteLog implements LogDataReceiver {
       }
 
       // Find removed fields
-      for (Map.Entry<String, Object> field : oldMap.entrySet()) {
+      for (Map.Entry<String, LogValue> field : oldMap.entrySet()) {
         if (!newMap.containsKey(field.getKey())) {
           writeField(field.getKey(), null);
         }

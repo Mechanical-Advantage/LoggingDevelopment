@@ -19,6 +19,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.logging.core.LogDataReceiver;
 import frc.robot.logging.core.LogTable;
+import frc.robot.logging.core.LogTable.LogValue;
 import frc.robot.logging.core.LogTable.LoggableType;
 
 /** Records log values to a SQLite database. */
@@ -136,64 +137,20 @@ public class SQLiteLog implements LogDataReceiver {
               break;
             }
 
-            Map<String, Object> newMap = entry.getAll(false);
-            Map<String, Object> oldMap = lastEntry.getAll(false);
+            Map<String, LogValue> newMap = entry.getAll(false);
+            Map<String, LogValue> oldMap = lastEntry.getAll(false);
 
             // Write new data
-            for (Map.Entry<String, Object> field : newMap.entrySet()) {
+            for (Map.Entry<String, LogValue> field : newMap.entrySet()) {
               // Check if field has changed
-              Object newValue = field.getValue();
-              LoggableType newType = LoggableType.identify(newValue);
-              boolean fieldChanged = true;
-              if (oldMap.containsKey(field.getKey())) {
-                Object oldValue = oldMap.get(field.getKey());
-                LoggableType oldType = LoggableType.identify(oldValue);
-                if (newType == oldType) {
-                  switch (newType) {
-                    case Boolean:
-                    case Integer:
-                    case Double:
-                    case String:
-                    case Byte:
-                      if (newValue.equals(oldValue)) {
-                        fieldChanged = false;
-                      }
-                      break;
-                    case BooleanArray:
-                      if (Arrays.equals((boolean[]) newValue, (boolean[]) oldValue)) {
-                        fieldChanged = false;
-                      }
-                      break;
-                    case IntegerArray:
-                      if (Arrays.equals((int[]) newValue, (int[]) oldValue)) {
-                        fieldChanged = false;
-                      }
-                      break;
-                    case DoubleArray:
-                      if (Arrays.equals((double[]) newValue, (double[]) oldValue)) {
-                        fieldChanged = false;
-                      }
-                      break;
-                    case StringArray:
-                      if (Arrays.equals((String[]) newValue, (String[]) oldValue)) {
-                        fieldChanged = false;
-                      }
-                      break;
-                    case ByteArray:
-                      if (Arrays.equals((byte[]) newValue, (byte[]) oldValue)) {
-                        fieldChanged = false;
-                      }
-                      break;
-                  }
-                }
-              }
-              if (!fieldChanged) {
+              LogValue newValue = field.getValue();
+              if (!newValue.hasChanged(oldMap.get(field.getKey()))) {
                 continue;
               }
 
               // Write new data
               Object output;
-              switch (newType) {
+              switch (field.getValue().type) {
                 case Boolean:
                 case Integer:
                 case Double:
@@ -203,35 +160,35 @@ public class SQLiteLog implements LogDataReceiver {
                   break;
                 case BooleanArray:
                   output = "";
-                  boolean[] booleanArray = (boolean[]) newValue;
+                  boolean[] booleanArray = newValue.getBooleanArray();
                   for (int i = 0; i < booleanArray.length; i++) {
                     output += (i == 0 ? "" : ",") + (booleanArray[i] == true ? "1" : "0");
                   }
                   break;
                 case IntegerArray:
                   output = "";
-                  int[] intArray = (int[]) newValue;
+                  int[] intArray = newValue.getIntegerArray();
                   for (int i = 0; i < intArray.length; i++) {
                     output += (i == 0 ? "" : ",") + Integer.toString(intArray[i]);
                   }
                   break;
                 case DoubleArray:
                   output = "";
-                  double[] doubleArray = (double[]) newValue;
+                  double[] doubleArray = newValue.getDoubleArray();
                   for (int i = 0; i < doubleArray.length; i++) {
                     output += (i == 0 ? "" : ",") + Double.toString(doubleArray[i]);
                   }
                   break;
                 case StringArray:
                   output = "";
-                  String[] stringArray = (String[]) newValue;
+                  String[] stringArray = newValue.getStringArray();
                   for (int i = 0; i < stringArray.length; i++) {
                     output += (i == 0 ? "" : ",") + stringArray[i];
                   }
                   break;
                 case ByteArray:
                   output = "";
-                  byte[] byteArray = (byte[]) newValue;
+                  byte[] byteArray = newValue.getByteArray();
                   for (int i = 0; i < byteArray.length; i++) {
                     output += (i == 0 ? "" : ",") + Byte.toString(byteArray[i]);
                   }
@@ -239,14 +196,13 @@ public class SQLiteLog implements LogDataReceiver {
                 default:
                   output = null;
               }
-              recordTable.insert(entry.getTimestamp(), field.getKey(), newType.ordinal(), output);
+              recordTable.insert(entry.getTimestamp(), field.getKey(), newValue.type.ordinal(), output);
             }
 
             // Find removed fields
-            for (Map.Entry<String, Object> field : oldMap.entrySet()) {
+            for (Map.Entry<String, LogValue> field : oldMap.entrySet()) {
               if (!newMap.containsKey(field.getKey())) {
-                recordTable.insert(entry.getTimestamp(), field.getKey(),
-                    LoggableType.identify(field.getValue()).ordinal(), null);
+                recordTable.insert(entry.getTimestamp(), field.getKey(), field.getValue().type.ordinal(), null);
               }
             }
 

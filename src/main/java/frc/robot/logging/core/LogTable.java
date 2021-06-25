@@ -4,6 +4,7 @@
 
 package frc.robot.logging.core;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 public class LogTable {
   private final double timestamp;
   private final String prefix;
-  private final Map<String, Object> data;
+  private final Map<String, LogValue> data;
 
   /**
    * Creates a new LogTable, to serve as the root table.
@@ -22,13 +23,13 @@ public class LogTable {
   public LogTable(double timestamp) {
     this.timestamp = timestamp;
     prefix = "/";
-    data = new HashMap<String, Object>();
+    data = new HashMap<String, LogValue>();
   }
 
   /**
    * Creates a new LogTable, to reference a subtable.
    */
-  private LogTable(double timestamp, String prefix, Map<String, Object> data) {
+  private LogTable(double timestamp, String prefix, Map<String, LogValue> data) {
     this.timestamp = timestamp;
     this.prefix = prefix;
     this.data = data;
@@ -59,10 +60,10 @@ public class LogTable {
    *                     If false, include all values.
    * @return Map of the requested data.
    */
-  public Map<String, Object> getAll(boolean subtableOnly) {
+  public Map<String, LogValue> getAll(boolean subtableOnly) {
     if (subtableOnly) {
-      Map<String, Object> result = new HashMap<String, Object>();
-      for (Map.Entry<String, Object> field : data.entrySet()) {
+      Map<String, LogValue> result = new HashMap<String, LogValue>();
+      for (Map.Entry<String, LogValue> field : data.entrySet()) {
         if (field.getKey().startsWith(prefix)) {
           result.put(field.getKey().substring(prefix.length()), field.getValue());
         }
@@ -73,116 +74,335 @@ public class LogTable {
     }
   }
 
-  /** Internal method for retrieving value of given type. */
-  private Object get(String key, Object defaultValue, LoggableType type) {
-    String fullKey = prefix + key;
-    if (data.containsKey(fullKey)) {
-      Object value = data.get(fullKey);
-      if (LoggableType.identify(value) == type) {
-        return value;
-      }
-    }
-    return defaultValue;
-  }
-
   /** Writes a new Boolean value to the table. */
   public void put(String key, boolean value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
   }
 
   /** Writes a new BooleanArray value to the table. */
   public void put(String key, boolean[] value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
   }
 
   /** Writes a new Integer value to the table. */
   public void put(String key, int value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
   }
 
   /** Writes a new IntegerArray value to the table. */
   public void put(String key, int[] value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
   }
 
   /** Writes a new Double value to the table. */
   public void put(String key, double value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
   }
 
   /** Writes a new DoubleArray value to the table. */
   public void put(String key, double[] value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
   }
 
   /** Writes a new String value to the table. */
   public void put(String key, String value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
   }
 
   /** Writes a new StringArray value to the table. */
   public void put(String key, String[] value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
   }
 
   /** Writes a new Byte value to the table. */
   public void put(String key, byte value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
   }
 
   /** Writes a new ByteArray value to the table. */
   public void put(String key, byte[] value) {
-    data.put(prefix + key, value);
+    data.put(prefix + key, new LogValue(value));
+  }
+
+  /** Reads a generic value from the table. */
+  public LogValue get(String key) {
+    return data.get(prefix + key);
   }
 
   /** Reads a Boolean value from the table. */
   public boolean getBoolean(String key, boolean defaultValue) {
-    return (boolean) get(key, defaultValue, LoggableType.Boolean);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getBoolean(defaultValue);
+    } else {
+      return defaultValue;
+    }
   }
 
   /** Reads a BooleanArray value from the table. */
   public boolean[] getBooleanArray(String key, boolean[] defaultValue) {
-    return (boolean[]) get(key, defaultValue, LoggableType.BooleanArray);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getBooleanArray(defaultValue);
+    } else {
+      return defaultValue;
+    }
   }
 
   /** Reads a Integer value from the table. */
   public int getInteger(String key, int defaultValue) {
-    return (int) get(key, defaultValue, LoggableType.Integer);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getInteger(defaultValue);
+    } else {
+      return defaultValue;
+    }
   }
 
   /** Reads a IntegerArray value from the table. */
   public int[] getIntegerArray(String key, int[] defaultValue) {
-    return (int[]) get(key, defaultValue, LoggableType.IntegerArray);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getIntegerArray(defaultValue);
+    } else {
+      return defaultValue;
+    }
   }
 
   /** Reads a Double value from the table. */
   public double getDouble(String key, double defaultValue) {
-    return (double) get(key, defaultValue, LoggableType.Double);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getDouble(defaultValue);
+    } else {
+      return defaultValue;
+    }
   }
 
   /** Reads a DoubleArray value from the table. */
   public double[] getDoubleArray(String key, double[] defaultValue) {
-    return (double[]) get(key, defaultValue, LoggableType.DoubleArray);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getDoubleArray(defaultValue);
+    } else {
+      return defaultValue;
+    }
   }
 
   /** Reads a String value from the table. */
   public String getString(String key, String defaultValue) {
-    return (String) get(key, defaultValue, LoggableType.String);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getString(defaultValue);
+    } else {
+      return defaultValue;
+    }
   }
 
   /** Reads a StringArray value from the table. */
   public String[] getStringArray(String key, String[] defaultValue) {
-    return (String[]) get(key, defaultValue, LoggableType.StringArray);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getStringArray(defaultValue);
+    } else {
+      return defaultValue;
+    }
   }
 
   /** Reads a Byte value from the table. */
   public byte getByte(String key, byte defaultValue) {
-    return (byte) get(key, defaultValue, LoggableType.Byte);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getByte(defaultValue);
+    } else {
+      return defaultValue;
+    }
   }
 
   /** Reads a ByteArray value from the table. */
   public byte[] getByteArray(String key, byte[] defaultValue) {
-    return (byte[]) get(key, defaultValue, LoggableType.ByteArray);
+    if (data.containsKey(prefix + key)) {
+      return get(key).getByteArray(defaultValue);
+    } else {
+      return defaultValue;
+    }
+  }
+
+  /**
+   * Represents a value stored in a LogTable, including type and value.
+   */
+  public class LogValue {
+    public final LoggableType type;
+    private final Object value;
+
+    LogValue(boolean value) {
+      type = LoggableType.Boolean;
+      this.value = value;
+    }
+
+    public boolean getBoolean() {
+      return getBoolean(false);
+    }
+
+    public boolean getBoolean(boolean defaultValue) {
+      return type == LoggableType.Boolean ? (boolean) value : defaultValue;
+    }
+
+    LogValue(boolean[] value) {
+      type = LoggableType.BooleanArray;
+      this.value = value;
+    }
+
+    public boolean[] getBooleanArray() {
+      return getBooleanArray(new boolean[] {});
+    }
+
+    public boolean[] getBooleanArray(boolean[] defaultValue) {
+      return type == LoggableType.BooleanArray ? (boolean[]) value : defaultValue;
+    }
+
+    LogValue(int value) {
+      type = LoggableType.Integer;
+      this.value = value;
+    }
+
+    public int getInteger() {
+      return getInteger(0);
+    }
+
+    public int getInteger(int defaultValue) {
+      return type == LoggableType.Integer ? (int) value : defaultValue;
+    }
+
+    LogValue(int[] value) {
+      type = LoggableType.IntegerArray;
+      this.value = value;
+    }
+
+    public int[] getIntegerArray() {
+      return getIntegerArray(new int[] {});
+    }
+
+    public int[] getIntegerArray(int[] defaultValue) {
+      return type == LoggableType.IntegerArray ? (int[]) value : defaultValue;
+    }
+
+    LogValue(double value) {
+      type = LoggableType.Double;
+      this.value = value;
+    }
+
+    public double getDouble() {
+      return getDouble(0.0);
+    }
+
+    public double getDouble(double defaultValue) {
+      return type == LoggableType.Double ? (double) value : defaultValue;
+    }
+
+    LogValue(double[] value) {
+      type = LoggableType.DoubleArray;
+      this.value = value;
+    }
+
+    public double[] getDoubleArray() {
+      return getDoubleArray(new double[] {});
+    }
+
+    public double[] getDoubleArray(double[] defaultValue) {
+      return type == LoggableType.DoubleArray ? (double[]) value : defaultValue;
+    }
+
+    LogValue(String value) {
+      type = LoggableType.String;
+      this.value = value;
+    }
+
+    public String getString() {
+      return getString("");
+    }
+
+    public String getString(String defaultValue) {
+      return type == LoggableType.String ? (String) value : defaultValue;
+    }
+
+    LogValue(String[] value) {
+      type = LoggableType.StringArray;
+      this.value = value;
+    }
+
+    public String[] getStringArray() {
+      return getStringArray(new String[] {});
+    }
+
+    public String[] getStringArray(String[] defaultValue) {
+      return type == LoggableType.StringArray ? (String[]) value : defaultValue;
+    }
+
+    LogValue(byte value) {
+      type = LoggableType.Byte;
+      this.value = value;
+    }
+
+    public byte getByte() {
+      return getByte((byte) 0);
+    }
+
+    public byte getByte(byte defaultValue) {
+      return type == LoggableType.Byte ? (byte) value : defaultValue;
+    }
+
+    LogValue(byte[] value) {
+      type = LoggableType.ByteArray;
+      this.value = value;
+    }
+
+    public byte[] getByteArray() {
+      return getByteArray(new byte[] {});
+    }
+
+    public byte[] getByteArray(byte[] defaultValue) {
+      return type == LoggableType.ByteArray ? (byte[]) value : defaultValue;
+    }
+
+    public boolean hasChanged(LogValue oldValue) {
+      if (oldValue == null) {
+        return true;
+      }
+
+      if (oldValue.type != type) {
+        return true;
+      } else {
+        switch (type) {
+          case Boolean:
+          case Integer:
+          case Double:
+          case String:
+          case Byte:
+            if (value.equals(oldValue.value)) {
+              return false;
+            }
+            break;
+          case BooleanArray:
+            if (Arrays.equals(getBooleanArray(), oldValue.getBooleanArray())) {
+              return false;
+            }
+            break;
+          case IntegerArray:
+            if (Arrays.equals(getIntegerArray(), oldValue.getIntegerArray())) {
+              return false;
+            }
+            break;
+          case DoubleArray:
+            if (Arrays.equals(getDoubleArray(), oldValue.getDoubleArray())) {
+              return false;
+            }
+            break;
+          case StringArray:
+            if (Arrays.equals(getStringArray(), oldValue.getStringArray())) {
+              return false;
+            }
+            break;
+          case ByteArray:
+            if (Arrays.equals(getByteArray(), oldValue.getByteArray())) {
+              return false;
+            }
+            break;
+        }
+        return true;
+      }
+    }
   }
 
   /**
@@ -190,48 +410,5 @@ public class LogTable {
    */
   public enum LoggableType {
     Boolean, BooleanArray, Integer, IntegerArray, Double, DoubleArray, String, StringArray, Byte, ByteArray;
-
-    public static LoggableType identify(Object object) {
-      if (object == null) {
-        return null;
-      }
-      if (object.getClass().isArray()) {
-        if (object.getClass().getComponentType() == boolean.class
-            || object.getClass().getComponentType() == Boolean.class) {
-          return BooleanArray;
-        }
-        if (object.getClass().getComponentType() == int.class
-            || object.getClass().getComponentType() == Integer.class) {
-          return IntegerArray;
-        }
-        if (object.getClass().getComponentType() == double.class
-            || object.getClass().getComponentType() == Double.class) {
-          return DoubleArray;
-        }
-        if (object.getClass().getComponentType() == String.class) {
-          return StringArray;
-        }
-        if (object.getClass().getComponentType() == byte.class || object.getClass().getComponentType() == Byte.class) {
-          return ByteArray;
-        }
-      } else {
-        if (object.getClass() == Boolean.class) {
-          return Boolean;
-        }
-        if (object.getClass() == Integer.class) {
-          return Integer;
-        }
-        if (object.getClass() == Double.class) {
-          return Double;
-        }
-        if (object.getClass() == String.class) {
-          return String;
-        }
-        if (object.getClass() == Byte.class) {
-          return Byte;
-        }
-      }
-      return null;
-    }
   }
 }

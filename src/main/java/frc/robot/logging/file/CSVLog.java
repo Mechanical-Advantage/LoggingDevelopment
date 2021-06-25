@@ -11,6 +11,7 @@ import java.util.Map;
 
 import frc.robot.logging.core.LogDataReceiver;
 import frc.robot.logging.core.LogTable;
+import frc.robot.logging.core.LogTable.LogValue;
 import frc.robot.logging.core.LogTable.LoggableType;
 
 /** Records log values to a CSV file. */
@@ -49,51 +50,51 @@ public class CSVLog implements LogDataReceiver {
   public void putEntry(LogTable entry) {
     String timestampString = Double.toString(entry.getTimestamp());
     try {
-      for (Map.Entry<String, Object> field : entry.getAll(false).entrySet()) {
-        LoggableType type = LoggableType.identify(field.getValue());
+      for (Map.Entry<String, LogValue> field : entry.getAll(false).entrySet()) {
+        LoggableType type = field.getValue().type;
         csvWriter.write(timestampString + "," + field.getKey() + "," + type.name());
         switch (type) {
           case Boolean:
-            csvWriter.write((boolean) field.getValue() == true ? ",true" : ",false");
+            csvWriter.write(field.getValue().getBoolean() == true ? ",true" : ",false");
             break;
           case BooleanArray:
-            boolean[] booleanArray = (boolean[]) field.getValue();
+            boolean[] booleanArray = field.getValue().getBooleanArray();
             for (int i = 0; i < booleanArray.length; i++) {
               csvWriter.write(booleanArray[i] == true ? ",true" : ",false");
             }
             break;
           case Integer:
-            csvWriter.write("," + Integer.toString((int) field.getValue()));
+            csvWriter.write("," + Integer.toString(field.getValue().getInteger()));
             break;
           case IntegerArray:
-            int[] intArray = (int[]) field.getValue();
+            int[] intArray = field.getValue().getIntegerArray();
             for (int i = 0; i < intArray.length; i++) {
               csvWriter.write("," + Integer.toString(intArray[i]));
             }
             break;
           case Double:
-            csvWriter.write("," + Double.toString((double) field.getValue()));
+            csvWriter.write("," + Double.toString(field.getValue().getDouble()));
             break;
           case DoubleArray:
-            double[] doubleArray = (double[]) field.getValue();
+            double[] doubleArray = field.getValue().getDoubleArray();
             for (int i = 0; i < doubleArray.length; i++) {
               csvWriter.write("," + Double.toString(doubleArray[i]));
             }
             break;
           case String:
-            csvWriter.write("," + (String) field.getValue());
+            csvWriter.write("," + field.getValue().getString());
             break;
           case StringArray:
-            String[] stringArray = (String[]) field.getValue();
+            String[] stringArray = field.getValue().getStringArray();
             for (int i = 0; i < stringArray.length; i++) {
               csvWriter.write("," + stringArray[i]);
             }
             break;
           case Byte:
-            csvWriter.write("," + Byte.toString((byte) field.getValue()));
+            csvWriter.write("," + Byte.toString(field.getValue().getByte()));
             break;
           case ByteArray:
-            byte[] byteArray = (byte[]) field.getValue();
+            byte[] byteArray = field.getValue().getByteArray();
             for (int i = 0; i < byteArray.length; i++) {
               csvWriter.write("," + Byte.toString(byteArray[i]));
             }

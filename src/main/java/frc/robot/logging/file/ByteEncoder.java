@@ -7,7 +7,7 @@ package frc.robot.logging.file;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
-import frc.robot.logging.core.LogTable.LoggableType;
+import frc.robot.logging.core.LogTable.LogValue;
 
 /** Converts log tables to byte array format. */
 public class ByteEncoder {
@@ -32,17 +32,16 @@ public class ByteEncoder {
     }
   }
 
-  public static ByteBuffer encodeValue(short keyID, Object value) {
+  public static ByteBuffer encodeValue(short keyID, LogValue value) {
     try {
       // Generate key and type buffer
       ByteBuffer keyBuffer = ByteBuffer.allocate(1 + Short.BYTES + 1);
       keyBuffer.put((byte) 2);
       keyBuffer.putShort(keyID);
-      LoggableType valueType = LoggableType.identify(value);
       if (value == null) {
         keyBuffer.put((byte) 0);
       } else {
-        keyBuffer.put((byte) (valueType.ordinal() + 1));
+        keyBuffer.put((byte) (value.type.ordinal() + 1));
       }
 
       // Generate value buffer
@@ -50,27 +49,27 @@ public class ByteEncoder {
       if (value == null) {
         valueBuffer = ByteBuffer.allocate(0);
       } else {
-        switch (valueType) {
+        switch (value.type) {
           case Boolean:
-            valueBuffer = ByteBuffer.allocate(1).put((boolean) value ? (byte) 1 : (byte) 0);
+            valueBuffer = ByteBuffer.allocate(1).put(value.getBoolean() ? (byte) 1 : (byte) 0);
             break;
           case Byte:
-            valueBuffer = ByteBuffer.allocate(1).put((byte) value);
+            valueBuffer = ByteBuffer.allocate(1).put(value.getByte());
             break;
           case Integer:
-            valueBuffer = ByteBuffer.allocate(Integer.BYTES).putInt((int) value);
+            valueBuffer = ByteBuffer.allocate(Integer.BYTES).putInt(value.getInteger());
             break;
           case Double:
-            valueBuffer = ByteBuffer.allocate(Double.BYTES).putDouble((double) value);
+            valueBuffer = ByteBuffer.allocate(Double.BYTES).putDouble(value.getDouble());
             break;
           case String:
-            String stringValue = (String) value;
+            String stringValue = value.getString();
             valueBuffer = ByteBuffer.allocate(Short.BYTES + stringValue.length());
             valueBuffer.putShort((short) stringValue.length());
             valueBuffer.put(stringValue.getBytes("UTF-8"));
             break;
           case BooleanArray:
-            boolean[] booleanArray = (boolean[]) value;
+            boolean[] booleanArray = value.getBooleanArray();
             valueBuffer = ByteBuffer.allocate(Short.BYTES + booleanArray.length);
             valueBuffer.putShort((short) booleanArray.length);
             for (boolean i : booleanArray) {
@@ -78,7 +77,7 @@ public class ByteEncoder {
             }
             break;
           case ByteArray:
-            byte[] byteArray = (byte[]) value;
+            byte[] byteArray = value.getByteArray();
             valueBuffer = ByteBuffer.allocate(Short.BYTES + byteArray.length);
             valueBuffer.putShort((short) byteArray.length);
             for (byte i : byteArray) {
@@ -86,7 +85,7 @@ public class ByteEncoder {
             }
             break;
           case IntegerArray:
-            int[] intArray = (int[]) value;
+            int[] intArray = value.getIntegerArray();
             valueBuffer = ByteBuffer.allocate(Short.BYTES + (intArray.length * Integer.BYTES));
             valueBuffer.putShort((short) intArray.length);
             for (int i : intArray) {
@@ -94,7 +93,7 @@ public class ByteEncoder {
             }
             break;
           case DoubleArray:
-            double[] doubleArray = (double[]) value;
+            double[] doubleArray = value.getDoubleArray();
             valueBuffer = ByteBuffer.allocate(Short.BYTES + (doubleArray.length * Double.BYTES));
             valueBuffer.putShort((short) doubleArray.length);
             for (double i : doubleArray) {
@@ -102,7 +101,7 @@ public class ByteEncoder {
             }
             break;
           case StringArray:
-            String[] stringArray = (String[]) value;
+            String[] stringArray = value.getStringArray();
             int capacity = 2;
             for (String i : stringArray) {
               capacity += 2 + i.length();
