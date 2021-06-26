@@ -80,9 +80,7 @@ public class ByteEncoder {
             byte[] byteArray = value.getByteArray();
             valueBuffer = ByteBuffer.allocate(Short.BYTES + byteArray.length);
             valueBuffer.putShort((short) byteArray.length);
-            for (byte i : byteArray) {
-              valueBuffer.put(i);
-            }
+            valueBuffer.put(byteArray);
             break;
           case IntegerArray:
             int[] intArray = value.getIntegerArray();
@@ -102,9 +100,9 @@ public class ByteEncoder {
             break;
           case StringArray:
             String[] stringArray = value.getStringArray();
-            int capacity = 2;
+            int capacity = Short.BYTES;
             for (String i : stringArray) {
-              capacity += 2 + i.length();
+              capacity += Short.BYTES + i.length();
             }
             valueBuffer = ByteBuffer.allocate(capacity);
             valueBuffer.putShort((short) stringArray.length);
