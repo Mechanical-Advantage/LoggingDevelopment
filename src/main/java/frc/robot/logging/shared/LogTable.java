@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.core;
+package frc.robot.logging.shared;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,6 +24,16 @@ public class LogTable {
     this.timestamp = timestamp;
     prefix = "/";
     data = new HashMap<String, LogValue>();
+  }
+
+  /**
+   * Creates a new LogTable, copying data from the given source.
+   */
+  public LogTable(double timestamp, LogTable source) {
+    this.timestamp = timestamp;
+    prefix = source.prefix;
+    data = new HashMap<String, LogValue>();
+    data.putAll(source.data);
   }
 
   /**
@@ -72,6 +82,11 @@ public class LogTable {
     } else {
       return data;
     }
+  }
+
+  /** Removes a field from the table. */
+  public void remove(String key) {
+    data.remove(prefix + key);
   }
 
   /** Writes a new Boolean value to the table. */
@@ -217,6 +232,58 @@ public class LogTable {
     } else {
       return defaultValue;
     }
+  }
+
+  /** Returns a string representation of the table. */
+  public String toString() {
+    String output = "Timestamp=" + Double.toString(timestamp) + "\n";
+    output += "Prefix=\"" + prefix + "\"\n";
+    output += "{\n";
+    for (Map.Entry<String, LogValue> field : getAll(true).entrySet()) {
+      output += "\t" + field.getKey() + "=";
+      LogValue value = field.getValue();
+      switch (value.type) {
+        case Boolean:
+          output += value.getBoolean() ? "true" : "false";
+          break;
+        case BooleanArray:
+          output += Arrays.toString(value.getBooleanArray());
+          break;
+        case Integer:
+          output += Integer.toString(value.getInteger());
+          break;
+        case IntegerArray:
+          output += Arrays.toString(value.getIntegerArray());
+          break;
+        case Double:
+          output += Double.toString(value.getDouble());
+          break;
+        case DoubleArray:
+          output += Arrays.toString(value.getDoubleArray());
+          break;
+        case String:
+          output += "\"" + value.getString() + "\"";
+          break;
+        case StringArray:
+          output += "[";
+          String[] stringArray = value.getStringArray();
+          for (int i = 0; i < stringArray.length; i++) {
+            output += "\"" + stringArray[i] + "\"";
+            output += i < stringArray.length - 1 ? "," : "";
+          }
+          output += "]";
+          break;
+        case Byte:
+          output += Byte.toString(value.getByte());
+          break;
+        case ByteArray:
+          output += Arrays.toString(value.getByteArray());
+          break;
+      }
+      output += "\n";
+    }
+    output += "}";
+    return output;
   }
 
   /**

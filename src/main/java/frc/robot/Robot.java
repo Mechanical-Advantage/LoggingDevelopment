@@ -6,10 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.logging.core.LoggedRobot;
-import frc.robot.logging.core.Logger;
 import frc.robot.logging.file.*;
 import frc.robot.logging.inputs.LoggedNetworkTables;
+import frc.robot.logging.robot.LoggedRobot;
+import frc.robot.logging.robot.Logger;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -33,12 +33,11 @@ public class Robot extends LoggedRobot {
     Logger logger = Logger.getInstance();
     setUseTiming(isReal());
     LoggedNetworkTables.getInstance().addTable("/LiveWindow");
-    logger.addMetadata("BuildDate", BuildConstants.BUILD_DATE);
-    logger.addMetadata("GitSHA", BuildConstants.GIT_SHA);
-    logger.addMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-    logger.addMetadata("GitDate", BuildConstants.GIT_DATE);
-    logger.addMetadata("GitDirty", Integer.toString(BuildConstants.DIRTY));
-    logger.addDataReceiver(new ByteLog());
+    if (isReal()) {
+      logger.addDataReceiver(new ByteLogReceiver("/media/sda1/robotlog.rlog"));
+    } else {
+      logger.setReplaySource(new ByteLogReplay("/Users/jonah/Documents/LoggingDevelopment/robotlog.rlog"));
+    }
     logger.start();
 
     // Instantiate our RobotContainer. This will perform all our button bindings,

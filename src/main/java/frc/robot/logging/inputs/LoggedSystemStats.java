@@ -6,8 +6,8 @@ package frc.robot.logging.inputs;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.logging.core.LogTable;
-import frc.robot.logging.core.LoggableInputs;
+import frc.robot.logging.shared.LogTable;
+import frc.robot.logging.robot.LoggableInputs;
 
 /**
  * Manages logging general system data. This is NOT replayed to the simulator.

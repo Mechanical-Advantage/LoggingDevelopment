@@ -7,9 +7,9 @@ package frc.robot.logging.inputs;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import frc.robot.Robot;
-import frc.robot.logging.core.LogTable;
-import frc.robot.logging.core.LoggableInputs;
-import frc.robot.logging.core.Logger;
+import frc.robot.logging.shared.LogTable;
+import frc.robot.logging.robot.LoggableInputs;
+import frc.robot.logging.robot.Logger;
 
 /**
  * Manages logging and replaying data from the driver station (robot state,
@@ -184,6 +184,9 @@ public class LoggedDriverStation {
           DriverStationSim.setJoystickPOV(id, pov, joystick.povs[pov]);
         }
       }
+
+      // Necessary to update certain fields like axes
+      DriverStationSim.notifyNewData();
     }
   }
 }

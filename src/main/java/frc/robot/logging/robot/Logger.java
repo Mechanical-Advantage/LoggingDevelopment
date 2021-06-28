@@ -2,30 +2,32 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.core;
+package frc.robot.logging.robot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.logging.inputs.*;
+import frc.robot.logging.shared.ByteEncoder;
+import frc.robot.logging.shared.LogTable;
 
 /** Central class for recording and replaying log data. */
 public class Logger {
 
-  private static final boolean debugTiming = true;
+  private static final boolean debugTiming = false;
 
   private static Logger instance;
 
   private boolean running = false;
+  private final Timer printTimer = new Timer();
   private LogTable entry;
   private LogTable outputTable;
-  private Map<String, String> metadata = new HashMap<>();
+  private ByteEncoder encoder;
+
   private LogReplaySource replaySource;
   private List<LogDataReceiver> dataReceivers = new ArrayList<>();
-  private final Timer printTimer = new Timer();
+  private List<LogRawDataReceiver> rawDataReceivers = new ArrayList<>();
 
   private Logger() {
   }
@@ -41,24 +43,26 @@ public class Logger {
    * Sets the source to use for replaying data. Use null to disable replay.
    */
   public void setReplaySource(LogReplaySource replaySource) {
-    this.replaySource = replaySource;
+    if (!running) {
+      this.replaySource = replaySource;
+    }
   }
 
   /**
    * Adds a new data receiver to process real or replayed data.
    */
   public void addDataReceiver(LogDataReceiver dataReceiver) {
-    dataReceivers.add(dataReceiver);
-    dataReceiver.setMetadata(metadata);
+    if (!running) {
+      dataReceivers.add(dataReceiver);
+    }
   }
 
   /**
-   * Adds a new metadata value.
+   * Adds a new raw data receiver to process real or replayed data.
    */
-  public void addMetadata(String key, String value) {
-    metadata.put(key, value);
-    for (int i = 0; i < dataReceivers.size(); i++) {
-      dataReceivers.get(i).setMetadata(metadata);
+  public void addDataReceiver(LogRawDataReceiver dataReceiver) {
+    if (!running) {
+      rawDataReceivers.add(dataReceiver);
     }
   }
 
@@ -69,6 +73,12 @@ public class Logger {
   public void start() {
     if (!running) {
       running = true;
+      if (rawDataReceivers.size() > 0) {
+        encoder = new ByteEncoder();
+      } else {
+        encoder = null;
+      }
+
       if (replaySource != null) {
         replaySource.start();
       }
@@ -77,6 +87,12 @@ public class Logger {
           dataReceivers.get(i).start();
         }
       }
+      for (int i = 0; i < rawDataReceivers.size(); i++) {
+        if (rawDataReceivers.get(i) != replaySource) {
+          rawDataReceivers.get(i).start(encoder);
+        }
+      }
+
       printTimer.reset();
       printTimer.start();
       periodic();
@@ -97,6 +113,11 @@ public class Logger {
           dataReceivers.get(i).end();
         }
       }
+      for (int i = 0; i < rawDataReceivers.size(); i++) {
+        if (rawDataReceivers.get(i) != replaySource) {
+          rawDataReceivers.get(i).end();
+        }
+      }
     }
   }
 
@@ -113,6 +134,12 @@ public class Logger {
         for (int i = 0; i < dataReceivers.size(); i++) {
           dataReceivers.get(i).putEntry(entry);
         }
+        if (rawDataReceivers.size() > 0) {
+          encoder.encodeTable(entry);
+        }
+        for (int i = 0; i < rawDataReceivers.size(); i++) {
+          rawDataReceivers.get(i).processEntry();
+        }
       }
 
       // Get next entry
@@ -121,6 +148,10 @@ public class Logger {
         outputTable = entry.getSubtable("RealOutputs");
       } else {
         entry = replaySource.getEntry();
+        if (entry == null) {
+          end();
+          System.exit(0);
+        }
         outputTable = entry.getSubtable("ReplayOutputs");
       }
 

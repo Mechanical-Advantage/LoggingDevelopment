@@ -6,7 +6,7 @@ package frc.robot.subsystems.drivetrain;
 
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.logging.core.Logger;
+import frc.robot.logging.robot.Logger;
 
 public class DriveTrain extends SubsystemBase {
 

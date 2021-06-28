@@ -2,13 +2,14 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.core;
+package frc.robot.logging.robot;
+
+import frc.robot.logging.shared.LogTable;
 
 /**
- * Provides a stream of log entries to be fed back to the robot code during
- * simulation.
+ * Receives entries from the logging system during real operation or simulation.
  */
-public interface LogReplaySource {
+public interface LogDataReceiver {
 
   /**
    * Called before the logging system begins reporting data. This should be used
@@ -25,8 +26,8 @@ public interface LogReplaySource {
   };
 
   /**
-   * Called every loop cycle to get the next set of data. Fields from previous
-   * cycles will NOT be preserved.
+   * Called every loop cycle when a new entry is complete. This data can be
+   * processed immediately or queued for later.
    */
-  public LogTable getEntry();
+  public void putEntry(LogTable entry);
 }

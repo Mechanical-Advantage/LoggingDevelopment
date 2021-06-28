@@ -9,10 +9,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
-import frc.robot.logging.core.LogDataReceiver;
-import frc.robot.logging.core.LogTable;
-import frc.robot.logging.core.LogTable.LogValue;
-import frc.robot.logging.core.LogTable.LoggableType;
+import frc.robot.logging.robot.LogDataReceiver;
+import frc.robot.logging.shared.LogTable;
+import frc.robot.logging.shared.LogTable.LogValue;
+import frc.robot.logging.shared.LogTable.LoggableType;
 
 /** Records log values to a CSV file. */
 public class CSVLog implements LogDataReceiver {

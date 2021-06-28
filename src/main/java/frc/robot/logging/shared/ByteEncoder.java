@@ -2,24 +2,128 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.file;
+package frc.robot.logging.shared;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import frc.robot.logging.core.LogTable.LogValue;
+import frc.robot.logging.shared.LogTable.LogValue;
 
 /** Converts log tables to byte array format. */
 public class ByteEncoder {
 
-  public static ByteBuffer encodeTimestamp(double timestamp) {
+  ByteBuffer nextOutput;
+
+  LogTable lastTable = new LogTable(0.0);
+  Map<String, Short> keyIDs = new HashMap<>();
+  short nextKeyID = 0;
+
+  /** Reads the encoded output of the last encoded table. */
+  public ByteBuffer getOutput() {
+    return nextOutput;
+  }
+
+  /**
+   * Encodes a single tables and returns the encoded output. Equivalent to calling
+   * "encodeTable()" and then "getOutput()"
+   */
+  public ByteBuffer getOutput(LogTable table) {
+    encodeTable(table);
+    return nextOutput;
+  }
+
+  /**
+   * Returns data required to start a new receiver (full contents of last table +
+   * all key IDs).
+   */
+  public ByteBuffer getNewcomerData() {
+    List<ByteBuffer> buffers = new ArrayList<>();
+
+    // Encode timestamp
+    buffers.add(encodeTimestamp(lastTable.getTimestamp()));
+
+    // Encode key IDs
+    for (Map.Entry<String, Short> keyID : keyIDs.entrySet()) {
+      buffers.add(encodeKey(keyID.getValue(), keyID.getKey()));
+    }
+
+    // Encode fields
+    for (Map.Entry<String, LogValue> field : lastTable.getAll(false).entrySet()) {
+      buffers.add(encodeValue(keyIDs.get(field.getKey()), field.getValue()));
+    }
+
+    // Combine buffers
+    int capacity = 0;
+    for (ByteBuffer buffer : buffers) {
+      capacity += buffer.capacity();
+    }
+    ByteBuffer output = ByteBuffer.allocate(capacity);
+    for (ByteBuffer buffer : buffers) {
+      output.put(buffer);
+    }
+    return output;
+  }
+
+  /** Encodes a single table and stores the result. */
+  public void encodeTable(LogTable table) {
+    List<ByteBuffer> buffers = new ArrayList<>();
+
+    Map<String, LogValue> newMap = table.getAll(false);
+    Map<String, LogValue> oldMap = lastTable.getAll(false);
+
+    // Encode timestamp
+    buffers.add(encodeTimestamp(table.getTimestamp()));
+
+    // Encode new/changed fields
+    for (Map.Entry<String, LogValue> field : newMap.entrySet()) {
+      // Check if field has changed
+      LogValue newValue = field.getValue();
+      if (!newValue.hasChanged(oldMap.get(field.getKey()))) {
+        continue;
+      }
+
+      // Write new data
+      if (!keyIDs.containsKey(field.getKey())) {
+        keyIDs.put(field.getKey(), nextKeyID);
+        buffers.add(encodeKey(nextKeyID, field.getKey()));
+        nextKeyID++;
+      }
+      buffers.add(encodeValue(keyIDs.get(field.getKey()), newValue));
+    }
+
+    // Encode removed fields
+    for (Map.Entry<String, LogValue> field : oldMap.entrySet()) {
+      if (!newMap.containsKey(field.getKey())) {
+        buffers.add(encodeValue(keyIDs.get(field.getKey()), null));
+      }
+    }
+
+    // Update last table
+    lastTable = table;
+
+    // Combine buffers
+    int capacity = 0;
+    for (ByteBuffer buffer : buffers) {
+      capacity += buffer.capacity();
+    }
+    nextOutput = ByteBuffer.allocate(capacity);
+    for (ByteBuffer buffer : buffers) {
+      nextOutput.put(buffer.array());
+    }
+  }
+
+  private static ByteBuffer encodeTimestamp(double timestamp) {
     ByteBuffer buffer = ByteBuffer.allocate(1 + Double.BYTES);
     buffer.put((byte) 0);
     buffer.putDouble(timestamp);
     return buffer;
   }
 
-  public static ByteBuffer encodeKey(short keyID, String key) {
+  private static ByteBuffer encodeKey(short keyID, String key) {
     try {
       ByteBuffer buffer = ByteBuffer.allocate(1 + Short.BYTES + Short.BYTES + key.length());
       buffer.put((byte) 1);
@@ -32,7 +136,7 @@ public class ByteEncoder {
     }
   }
 
-  public static ByteBuffer encodeValue(short keyID, LogValue value) {
+  private static ByteBuffer encodeValue(short keyID, LogValue value) {
     try {
       // Generate key and type buffer
       ByteBuffer keyBuffer = ByteBuffer.allocate(1 + Short.BYTES + 1);

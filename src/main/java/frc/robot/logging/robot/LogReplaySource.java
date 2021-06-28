@@ -2,14 +2,15 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.core;
+package frc.robot.logging.robot;
 
-import java.util.Map;
+import frc.robot.logging.shared.LogTable;
 
 /**
- * Receives entries from the logging system during real operation or simulation.
+ * Provides a stream of log entries to be fed back to the robot code during
+ * simulation.
  */
-public interface LogDataReceiver {
+public interface LogReplaySource {
 
   /**
    * Called before the logging system begins reporting data. This should be used
@@ -26,15 +27,8 @@ public interface LogDataReceiver {
   };
 
   /**
-   * Provides a set of metadata to store. This method will be called whenever a
-   * new value is added or updated.
+   * Called every loop cycle to get the next set of data. Fields from previous
+   * cycles will NOT be preserved. Return null to end replay.
    */
-  public default void setMetadata(Map<String, String> metadata) {
-  };
-
-  /**
-   * Called every loop cycle when a new entry is complete. This data can be
-   * processed immediately or queued for later.
-   */
-  public void putEntry(LogTable entry);
+  public LogTable getEntry();
 }

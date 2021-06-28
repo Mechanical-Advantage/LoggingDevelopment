@@ -5,8 +5,6 @@
 package frc.robot.logging.file;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,10 +15,9 @@ import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.logging.core.LogDataReceiver;
-import frc.robot.logging.core.LogTable;
-import frc.robot.logging.core.LogTable.LogValue;
-import frc.robot.logging.core.LogTable.LoggableType;
+import frc.robot.logging.robot.LogDataReceiver;
+import frc.robot.logging.shared.LogTable;
+import frc.robot.logging.shared.LogTable.LogValue;
 
 /** Records log values to a SQLite database. */
 public class SQLiteLog implements LogDataReceiver {
@@ -30,11 +27,8 @@ public class SQLiteLog implements LogDataReceiver {
 
   private File dbFile = new File(filename);
   private SqlJetDb db;
-  private ISqlJetTable metadataTable;
   private ISqlJetTable recordTable;
 
-  private Map<String, String> metadata = new HashMap<>();
-  private boolean metadataChanged = false;
   private final BlockingQueue<LogTable> queue = new LinkedBlockingQueue<LogTable>();
   private SQLiteWriter writerThread;
 
@@ -51,11 +45,9 @@ public class SQLiteLog implements LogDataReceiver {
     try {
       db = SqlJetDb.open(dbFile, true);
       db.beginTransaction(SqlJetTransactionMode.WRITE);
-      db.createTable("CREATE TABLE metadata (key TEXT NOT NULL, value TEXT NOT NULL)");
       db.createTable(
           "CREATE TABLE records (timestamp INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, value BLOB)");
       db.commit();
-      metadataTable = db.getTable("metadata");
       recordTable = db.getTable("records");
     } catch (SqlJetException e) {
       DriverStation.reportError("Failed to prepare log file. Data will NOT be recorded.", true);
@@ -79,11 +71,6 @@ public class SQLiteLog implements LogDataReceiver {
         DriverStation.reportError("Failed to close log file.", true);
       }
     }
-  }
-
-  public void setMetadata(Map<String, String> metadata) {
-    this.metadata = metadata;
-    metadataChanged = true;
   }
 
   public void putEntry(LogTable entry) {
@@ -120,15 +107,6 @@ public class SQLiteLog implements LogDataReceiver {
       if (dbReady()) {
         try {
           db.beginTransaction(SqlJetTransactionMode.WRITE);
-
-          // Write metadata
-          if (metadataChanged) {
-            metadataTable.clear();
-            for (Map.Entry<String, String> field : metadata.entrySet()) {
-              metadataTable.insert(field.getKey(), field.getValue());
-            }
-            metadataChanged = false;
-          }
 
           // Write records
           while (true) {
