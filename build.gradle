@@ -11,7 +11,7 @@ def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 repositories {
     maven {
-        url "http://maven.tmatesoft.com/content/repositories/releases"
+        url "https://mvnrepository.com/artifact/org.tmatesoft.sqljet/sqljet"
     }
 }
 
@@ -89,16 +89,10 @@ jar {
 
 project.compileJava.dependsOn(createVersionFile)
 gversion {
-  srcDir       = "src/main/java/"           // path is relative to the sub-project by default
-                                            // Gradle variables can also be used
-                                            // E.g. "${project.rootDir}/module/src/main/java"
+  srcDir       = "src/main/java/"
   classPackage = "frc.robot"
-  className    = "BuildConstants"           // optional. If not specified GVersion is used
-  dateFormat   = "yyyy-MM-dd HH:mm:ss"      // optional. This is the default
-  timeZone     = "America/New_York"         // optional. UTC is default
-  debug        = false                      // optional. print out extra debug information
-  language     = "java"                     // optional. Can be Java, Kotlin, YAML, or Properties. Case insensitive.
-  explicitType = false                      // optional. Force types to be explicitly printed
-  indent       = "  "                       // optional. Change how code is indented. 1 tab is default.
-  annotate     = false                      // optional. Java only. Adds @Generated annotation
+  className    = "BuildConstants"
+  dateFormat   = "yyyy-MM-dd HH:mm:ss"
+  timeZone     = "America/New_York"
+  indent       = "  "
 }
