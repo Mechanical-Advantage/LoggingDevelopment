@@ -63,6 +63,7 @@ public class ByteDecoder {
     int typeInt = input.read();
     if (typeInt == 0) {
       table.remove(key);
+      return;
     }
 
     LoggableType type = LoggableType.values()[typeInt - 1];
