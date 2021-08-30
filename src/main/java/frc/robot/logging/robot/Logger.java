@@ -5,7 +5,9 @@
 package frc.robot.logging.robot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.logging.inputs.*;
@@ -23,6 +25,7 @@ public class Logger {
   private final Timer printTimer = new Timer();
   private LogTable entry;
   private LogTable outputTable;
+  private Map<String, String> metadata = new HashMap<>();
   private ByteEncoder encoder;
 
   private LogReplaySource replaySource;
@@ -40,7 +43,8 @@ public class Logger {
   }
 
   /**
-   * Sets the source to use for replaying data. Use null to disable replay.
+   * Sets the source to use for replaying data. Use null to disable replay. This
+   * method only work during setup before starting to log.
    */
   public void setReplaySource(LogReplaySource replaySource) {
     if (!running) {
@@ -49,7 +53,8 @@ public class Logger {
   }
 
   /**
-   * Adds a new data receiver to process real or replayed data.
+   * Adds a new data receiver to process real or replayed data. This method only
+   * work during setup before starting to log.
    */
   public void addDataReceiver(LogDataReceiver dataReceiver) {
     if (!running) {
@@ -58,11 +63,25 @@ public class Logger {
   }
 
   /**
-   * Adds a new raw data receiver to process real or replayed data.
+   * Adds a new raw data receiver to process real or replayed data. This method
+   * only work during setup before starting to log.
    */
   public void addDataReceiver(LogRawDataReceiver dataReceiver) {
     if (!running) {
       rawDataReceivers.add(dataReceiver);
+    }
+  }
+
+  /**
+   * Records a metadata value. This method only work during setup before starting
+   * to log, then data will be recorded during the first cycle.
+   * 
+   * @param key   The name used to identify this metadata field.
+   * @param value The value of the metadata field.
+   */
+  public void recordMetadata(String key, String value) {
+    if (!running) {
+      metadata.put(key, value);
     }
   }
 
@@ -73,6 +92,8 @@ public class Logger {
   public void start() {
     if (!running) {
       running = true;
+      entry = null;
+
       if (rawDataReceivers.size() > 0) {
         encoder = new ByteEncoder();
       } else {
@@ -96,6 +117,12 @@ public class Logger {
       printTimer.reset();
       printTimer.start();
       periodic();
+
+      // Record metadata
+      LogTable metadataTable = entry.getSubtable(replaySource == null ? "RealMetadata" : "ReplayMetadata");
+      for (Map.Entry<String, String> item : metadata.entrySet()) {
+        metadataTable.put(item.getKey(), item.getValue());
+      }
     }
   }
 

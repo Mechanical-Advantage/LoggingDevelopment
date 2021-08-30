@@ -33,10 +33,17 @@ public class Robot extends LoggedRobot {
     Logger logger = Logger.getInstance();
     setUseTiming(isReal());
     LoggedNetworkTables.getInstance().addTable("/LiveWindow");
+    logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+    logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+    logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+    logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+    logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+    logger.recordMetadata("GitDirty", Integer.toString(BuildConstants.DIRTY));
     if (isReal()) {
       logger.addDataReceiver(new ByteLogReceiver("/media/sda1/robotlog.rlog"));
     } else {
       logger.setReplaySource(new ByteLogReplay("/Users/jonah/Documents/LoggingDevelopment/robotlog.rlog"));
+      logger.addDataReceiver(new ByteLogReceiver("/Users/jonah/Documents/LoggingDevelopment/robotlog_replay.rlog"));
     }
     logger.start();
 
