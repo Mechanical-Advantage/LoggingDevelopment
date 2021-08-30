@@ -19,14 +19,21 @@ public class ByteDecoder {
   Map<Short, String> keyIDs = new HashMap<>();
 
   public LogTable decodeTable(DataInputStream input) {
-    try {
+    readTable: try {
       if (firstCycle) {
         input.skip(1); // First byte specifies timestamp type, this will be assumed
         firstCycle = false;
       }
+      if (input.available() == 0) {
+        return null; // No more data, so we can't start a new table
+      }
       table = new LogTable(decodeTimestamp(input), table);
 
       readLoop: while (true) {
+        if (input.available() == 0) {
+          break readTable; // This was the last cycle, return the data
+        }
+
         byte type = input.readByte();
         switch (type) {
           case 0: // Next timestamp
@@ -41,7 +48,7 @@ public class ByteDecoder {
       }
 
     } catch (Exception e) {
-      return null;
+      return null; // Problem decoding, might have been interrupted while writing this cycle
     }
 
     return new LogTable(table.getTimestamp(), table);
