@@ -38,7 +38,17 @@ public class Robot extends LoggedRobot {
     logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
     logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
     logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-    logger.recordMetadata("GitDirty", Integer.toString(BuildConstants.DIRTY));
+    switch (BuildConstants.DIRTY) {
+      case -1:
+        logger.recordMetadata("GitDirty", "Unknown");
+        break;
+      case 0:
+        logger.recordMetadata("GitDirty", "All changes committed");
+        break;
+      case 1:
+        logger.recordMetadata("GitDirty", "Uncomitted changes");
+        break;
+    }
     if (isReal()) {
       logger.addDataReceiver(new ByteLogReceiver("/media/sda1/robotlog.rlog"));
     } else {
