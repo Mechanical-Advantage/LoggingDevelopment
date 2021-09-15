@@ -7,22 +7,30 @@ package frc.robot.logging.shared;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.logging.shared.LogTable.LoggableType;
 
 /** Converts byte array format to log tables. */
 public class ByteDecoder {
+  public static final List<Byte> supportedLogRevisions = List.of((byte) 1);
 
-  boolean firstCycle = true;
+  Byte logRevision = null;
   LogTable table = new LogTable(0.0);
   Map<Short, String> keyIDs = new HashMap<>();
 
   public LogTable decodeTable(DataInputStream input) {
     readTable: try {
-      if (firstCycle) {
-        input.skip(1); // First byte specifies timestamp type, this will be assumed
-        firstCycle = false;
+      if (logRevision == null) {
+        logRevision = input.readByte();
+        if (!supportedLogRevisions.contains(logRevision)) {
+          DriverStation.reportError("Log revision " + Integer.toString(logRevision & 0xff) + " is not supported.",
+              false);
+          return null;
+        }
+        input.skip(1); // Second byte specifies timestamp type, this will be assumed
       }
       if (input.available() == 0) {
         return null; // No more data, so we can't start a new table
@@ -47,7 +55,7 @@ public class ByteDecoder {
         }
       }
 
-    } catch (Exception e) {
+    } catch (IOException e) {
       return null; // Problem decoding, might have been interrupted while writing this cycle
     }
 

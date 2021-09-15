@@ -15,9 +15,10 @@ import frc.robot.logging.shared.LogTable.LogValue;
 
 /** Converts log tables to byte array format. */
 public class ByteEncoder {
+  public static final byte logRevision = (byte) 1;
 
   ByteBuffer nextOutput;
-
+  boolean isFirstTable = true;
   LogTable lastTable = new LogTable(0.0);
   Map<String, Short> keyIDs = new HashMap<>();
   short nextKeyID = 0;
@@ -42,6 +43,9 @@ public class ByteEncoder {
    */
   public ByteBuffer getNewcomerData() {
     List<ByteBuffer> buffers = new ArrayList<>();
+
+    // Encode log revision
+    buffers.add(ByteBuffer.allocate(1).put(logRevision));
 
     // Encode timestamp
     buffers.add(encodeTimestamp(lastTable.getTimestamp()));
@@ -74,6 +78,12 @@ public class ByteEncoder {
 
     Map<String, LogValue> newMap = table.getAll(false);
     Map<String, LogValue> oldMap = lastTable.getAll(false);
+
+    // Encode log revision
+    if (isFirstTable) {
+      buffers.add(ByteBuffer.allocate(1).put(logRevision));
+      isFirstTable = false;
+    }
 
     // Encode timestamp
     buffers.add(encodeTimestamp(table.getTimestamp()));

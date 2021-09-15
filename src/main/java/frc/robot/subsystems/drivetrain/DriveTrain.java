@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems.drivetrain;
 
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.logging.robot.Logger;
@@ -15,6 +18,10 @@ public class DriveTrain extends SubsystemBase {
   private final DriveTrainIO io;
   private final DriveTrainInputs inputs = new DriveTrainInputs();
 
+  private DifferentialDriveOdometry odometry;
+  private double baseDistanceLeft = 0.0;
+  private double baseDistanceRight = 0.0;
+
   /** Creates a new DriveTrain. */
   public DriveTrain(DriveTrainIO io) {
     this.io = io;
@@ -25,6 +32,18 @@ public class DriveTrain extends SubsystemBase {
     // This method will be called once per scheduler run
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("DriveTrain", inputs);
+
+    if (odometry == null) {
+      odometry = new DifferentialDriveOdometry(getGyroAngle());
+      baseDistanceLeft = getLeftPositionMeters();
+      baseDistanceRight = getRightPositionMeters();
+    } else {
+      Pose2d pose = odometry.update(getGyroAngle(), getLeftPositionMeters() - baseDistanceLeft,
+          getRightPositionMeters() - baseDistanceRight);
+      Logger.getInstance().recordOutput("Odometry/RotationDegrees", pose.getRotation().getDegrees());
+      Logger.getInstance().recordOutput("Odometry/XMeters", pose.getX());
+      Logger.getInstance().recordOutput("Odometry/YMeters", pose.getY());
+    }
   }
 
   /**
@@ -48,5 +67,13 @@ public class DriveTrain extends SubsystemBase {
    */
   public double getRightPositionMeters() {
     return inputs.rightPositionRadians * wheelRadiusMeters;
+  }
+
+  /**
+   * Returns a Rotation2d object representing the gyro angle (using the WPILib
+   * coordinate system).
+   */
+  public Rotation2d getGyroAngle() {
+    return Rotation2d.fromDegrees(inputs.gyroAngleDegrees * -1);
   }
 }
