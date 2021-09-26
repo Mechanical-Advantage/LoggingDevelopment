@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.Scanner;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.logging.file.*;
@@ -50,10 +52,17 @@ public class Robot extends LoggedRobot {
         break;
     }
     if (isReal()) {
-      logger.addDataReceiver(new ByteLogReceiver("/media/sda1/robotlog.rlog"));
+      logger.addDataReceiver(new ByteLogReceiver("/home/lvuser/testlog.rlog"));
     } else {
-      logger.setReplaySource(new ByteLogReplay("/Users/jonah/Documents/LoggingDevelopment/robotlog.rlog"));
-      logger.addDataReceiver(new ByteLogReceiver("/Users/jonah/Documents/LoggingDevelopment/robotlog_replay.rlog"));
+      Scanner scanner = new Scanner(System.in);
+      System.out.print("Drag input log file here: ");
+      String filename = scanner.nextLine();
+      scanner.close();
+      if (filename.charAt(0) == '\'' || filename.charAt(0) == '"') {
+        filename = filename.substring(1, filename.length() - 1);
+      }
+      logger.setReplaySource(new ByteLogReplay(filename));
+      logger.addDataReceiver(new ByteLogReceiver(filename.substring(0, filename.length() - 5) + "_simulated.rlog"));
     }
     logger.start();
 
