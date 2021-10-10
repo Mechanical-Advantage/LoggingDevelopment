@@ -4,14 +4,16 @@
 
 package frc.robot;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.logging.file.*;
+import frc.robot.logging.LoggedRobot;
+import frc.robot.logging.Logger;
 import frc.robot.logging.inputs.LoggedNetworkTables;
-import frc.robot.logging.robot.LoggedRobot;
-import frc.robot.logging.robot.Logger;
+import frc.robot.logging.io.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,6 +25,8 @@ import frc.robot.logging.robot.Logger;
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
+  private ByteLogReceiver logReceiver;
+  private boolean logRenamed = false;
   private RobotContainer m_robotContainer;
 
   /**
@@ -52,7 +56,11 @@ public class Robot extends LoggedRobot {
         break;
     }
     if (isReal()) {
-      logger.addDataReceiver(new ByteLogReceiver("/home/lvuser/testlog.rlog"));
+      logReceiver = new ByteLogReceiver("/home/lvuser/temp.rlog");
+      logger.addDataReceiver(logReceiver);
+      if (Constants.tuningMode) {
+        logger.addDataReceiver(new LogSocketServer(5800));
+      }
     } else {
       Scanner scanner = new Scanner(System.in);
       System.out.print("Drag input log file here: ");
@@ -91,6 +99,12 @@ public class Robot extends LoggedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    // Rename log file when system time updates
+    if (System.currentTimeMillis() > 946702800000L && !logRenamed && logReceiver != null) {
+      logReceiver.rename(new SimpleDateFormat("'/home/lvuser/Log'_yy-MM-dd_HH-mm-ss'.rlog'").format(new Date()));
+      logRenamed = true;
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

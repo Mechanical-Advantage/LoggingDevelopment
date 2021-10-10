@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.file;
+package frc.robot.logging.io;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -10,9 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.logging.robot.LogReplaySource;
-import frc.robot.logging.shared.ByteDecoder;
-import frc.robot.logging.shared.LogTable;
+import frc.robot.logging.LogTable;
 
 /** Replays log values from a custom binary format. */
 public class ByteLogReplay implements LogReplaySource {

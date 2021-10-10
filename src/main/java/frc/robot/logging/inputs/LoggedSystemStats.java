@@ -6,8 +6,8 @@ package frc.robot.logging.inputs;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.logging.shared.LogTable;
-import frc.robot.logging.robot.LoggableInputs;
+import edu.wpi.first.wpilibj.SensorUtil;
+import frc.robot.logging.LogTable;
 
 /**
  * Manages logging general system data. This is NOT replayed to the simulator.
@@ -31,8 +31,9 @@ public class LoggedSystemStats implements LoggableInputs {
     table.put("BatteryVoltage", RobotController.getBatteryVoltage());
     table.put("BrownedOut", RobotController.isBrownedOut());
     table.put("CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
-    double[] pdpCurrents = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    for (int channel = 0; channel < 16; channel++) {
+    int channelCount = SensorUtil.kPDPChannels;
+    double[] pdpCurrents = new double[channelCount];
+    for (int channel = 0; channel < channelCount; channel++) {
       pdpCurrents[channel] = pdp.getCurrent(channel);
     }
     table.put("PDPCurrents", pdpCurrents);

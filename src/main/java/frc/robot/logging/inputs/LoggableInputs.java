@@ -2,9 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.robot;
+package frc.robot.logging.inputs;
 
-import frc.robot.logging.shared.LogTable;
+import frc.robot.logging.LogTable;
 
 /**
  * A set of values which can be logged and replayed (for example, the hardware

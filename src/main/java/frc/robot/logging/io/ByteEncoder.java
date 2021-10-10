@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.shared;
+package frc.robot.logging.io;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -11,7 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import frc.robot.logging.shared.LogTable.LogValue;
+import frc.robot.logging.LogTable;
+import frc.robot.logging.LogTable.LogValue;
 
 /** Converts log tables to byte array format. */
 public class ByteEncoder {
@@ -67,7 +68,7 @@ public class ByteEncoder {
     }
     ByteBuffer output = ByteBuffer.allocate(capacity);
     for (ByteBuffer buffer : buffers) {
-      output.put(buffer);
+      output.put(buffer.array());
     }
     return output;
   }

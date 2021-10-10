@@ -7,9 +7,8 @@ package frc.robot.logging.inputs;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import frc.robot.Robot;
-import frc.robot.logging.shared.LogTable;
-import frc.robot.logging.robot.LoggableInputs;
-import frc.robot.logging.robot.Logger;
+import frc.robot.logging.LogTable;
+import frc.robot.logging.Logger;
 
 /**
  * Manages logging and replaying data from the driver station (robot state,

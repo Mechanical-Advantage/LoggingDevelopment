@@ -11,9 +11,8 @@ import java.util.Map;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.logging.shared.LogTable;
-import frc.robot.logging.robot.LoggableInputs;
-import frc.robot.logging.shared.LogTable.LogValue;
+import frc.robot.logging.LogTable;
+import frc.robot.logging.LogTable.LogValue;
 import edu.wpi.first.networktables.NetworkTable;
 
 /**

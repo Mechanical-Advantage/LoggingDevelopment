@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.robot;
+package frc.robot.logging;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,8 +11,10 @@ import java.util.Map;
 
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.logging.inputs.*;
-import frc.robot.logging.shared.ByteEncoder;
-import frc.robot.logging.shared.LogTable;
+import frc.robot.logging.io.ByteEncoder;
+import frc.robot.logging.io.LogDataReceiver;
+import frc.robot.logging.io.LogRawDataReceiver;
+import frc.robot.logging.io.LogReplaySource;
 
 /** Central class for recording and replaying log data. */
 public class Logger {
@@ -73,7 +75,7 @@ public class Logger {
   }
 
   /**
-   * Records a metadata value. This method only work during setup before starting
+   * Records a metadata value. This method only works during setup before starting
    * to log, then data will be recorded during the first cycle.
    * 
    * @param key   The name used to identify this metadata field.

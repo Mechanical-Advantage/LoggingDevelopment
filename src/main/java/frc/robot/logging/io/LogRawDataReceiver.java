@@ -2,9 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.logging.robot;
-
-import frc.robot.logging.shared.ByteEncoder;
+package frc.robot.logging.io;
 
 /**
  * Receives entries (encoded as bytes) from the logging system during real
