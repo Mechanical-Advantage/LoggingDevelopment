@@ -31,7 +31,7 @@ public class ByteLogReceiver implements LogRawDataReceiver {
 
     try {
       file.close();
-      file = new FileOutputStream(filename);
+      file = new FileOutputStream(filename, true);
     } catch (IOException e) {
       DriverStation.reportError("Failed to open renamed log file.", true);
     }
