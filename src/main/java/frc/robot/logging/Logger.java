@@ -88,6 +88,13 @@ public class Logger {
   }
 
   /**
+   * Returns whether a replay source is currently being used.
+   */
+  public boolean hasReplaySource() {
+    return replaySource != null;
+  }
+
+  /**
    * Starts running the logging system, including any data receivers or the replay
    * source.
    */

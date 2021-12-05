@@ -109,7 +109,7 @@ public class LoggedDriverStation {
    */
   public void periodic() {
     // Update inputs from real driver station
-    if (Robot.isReal()) {
+    if (!logger.hasReplaySource()) {
       dsInputs.enabled = driverStation.isEnabled();
       dsInputs.autonomous = driverStation.isAutonomous();
       dsInputs.test = driverStation.isTest();
@@ -155,7 +155,7 @@ public class LoggedDriverStation {
     }
 
     // Send inputs to sim driver station
-    if (Robot.isSimulation()) {
+    if (logger.hasReplaySource()) {
       DriverStationSim.setEnabled(dsInputs.enabled);
       DriverStationSim.setAutonomous(dsInputs.autonomous);
       DriverStationSim.setTest(dsInputs.test);

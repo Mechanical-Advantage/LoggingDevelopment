@@ -7,24 +7,28 @@ package frc.robot.subsystems.drivetrain;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.logging.Logger;
 
 public class DriveTrain extends SubsystemBase {
 
-  private static final double wheelRadiusMeters = Units.inchesToMeters(3.0);
+  public static final double wheelRadiusMeters = Units.inchesToMeters(3.0);
 
   private final DriveTrainIO io;
   private final DriveTrainInputs inputs = new DriveTrainInputs();
 
   private DifferentialDriveOdometry odometry;
+  private Field2d field2d = new Field2d();
   private double baseDistanceLeft = 0.0;
   private double baseDistanceRight = 0.0;
 
   /** Creates a new DriveTrain. */
   public DriveTrain(DriveTrainIO io) {
     this.io = io;
+    SmartDashboard.putData("Odometry", field2d);
   }
 
   @Override
@@ -43,7 +47,11 @@ public class DriveTrain extends SubsystemBase {
       Logger.getInstance().recordOutput("Odometry/RotationDegrees", pose.getRotation().getDegrees());
       Logger.getInstance().recordOutput("Odometry/XMeters", pose.getX());
       Logger.getInstance().recordOutput("Odometry/YMeters", pose.getY());
+      field2d.setRobotPose(pose);
     }
+
+    Logger.getInstance().recordOutput("DriveTrain/TotalCurrentAmps",
+        Math.abs(inputs.leftCurrentAmps) + Math.abs(inputs.rightCurrentAmps));
   }
 
   /**

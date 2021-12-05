@@ -12,6 +12,7 @@ import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.subsystems.drivetrain.DriveTrain;
 import frc.robot.subsystems.drivetrain.DriveTrainIO;
 import frc.robot.subsystems.drivetrain.DriveTrainIOReal;
+import frc.robot.subsystems.drivetrain.DriveTrainIOSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -31,7 +32,9 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Instantiate subsystems
-    if (Robot.isReal()) {
+    if (Constants.isPhysicsSim) {
+      driveTrain = new DriveTrain(new DriveTrainIOSim());
+    } else if (Robot.isReal()) {
       driveTrain = new DriveTrain(new DriveTrainIOReal());
     } else {
       driveTrain = new DriveTrain(new DriveTrainIO() {
@@ -40,7 +43,9 @@ public class RobotContainer {
 
     // Set up default commands
     driveTrain.setDefaultCommand(
-        new DriveWithJoysticks(driveTrain, () -> controller.getY(Hand.kLeft), () -> controller.getX(Hand.kRight)));
+        new DriveWithJoysticks(driveTrain,
+            () -> Constants.isPhysicsSim ? controller.getRawAxis(1) : controller.getY(Hand.kLeft),
+            () -> Constants.isPhysicsSim ? controller.getRawAxis(0) : controller.getY(Hand.kRight)));
 
     // Configure the button bindings
     configureButtonBindings();

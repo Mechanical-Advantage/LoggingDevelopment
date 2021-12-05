@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Scanner;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,8 +23,6 @@ import frc.robot.logging.io.*;
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
-  private ByteLogReceiver logReceiver;
-  private boolean logRenamed = false;
   private RobotContainer m_robotContainer;
 
   /**
@@ -37,7 +33,7 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     // Set up logging system
     Logger logger = Logger.getInstance();
-    setUseTiming(isReal());
+    setUseTiming(isReal() || Constants.isPhysicsSim);
     LoggedNetworkTables.getInstance().addTable("/LiveWindow");
     logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -55,12 +51,12 @@ public class Robot extends LoggedRobot {
         logger.recordMetadata("GitDirty", "Uncomitted changes");
         break;
     }
-    if (isReal()) {
-      logReceiver = new ByteLogReceiver("/home/lvuser/temp.rlog");
-      logger.addDataReceiver(logReceiver);
-      if (Constants.tuningMode) {
-        logger.addDataReceiver(new LogSocketServer(5800));
-      }
+    if (Constants.isPhysicsSim) {
+      logger.addDataReceiver(new ByteLogReceiver("/Users/jonah/Downloads/"));
+      logger.addDataReceiver(new LogSocketServer(5800));
+    } else if (isReal()) {
+      logger.addDataReceiver(new ByteLogReceiver("/home/lvuser/"));
+      logger.addDataReceiver(new LogSocketServer(5800));
     } else {
       Scanner scanner = new Scanner(System.in);
       System.out.print("Drag input log file here: ");
@@ -70,7 +66,8 @@ public class Robot extends LoggedRobot {
         filename = filename.substring(1, filename.length() - 1);
       }
       logger.setReplaySource(new ByteLogReplay(filename));
-      logger.addDataReceiver(new ByteLogReceiver(filename.substring(0, filename.length() - 5) + "_simulated.rlog"));
+      logger.addDataReceiver(new ByteLogReceiver(filename.substring(0,
+          filename.length() - 5) + "_simulated.rlog"));
     }
     logger.start();
 
@@ -100,11 +97,9 @@ public class Robot extends LoggedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    // Rename log file when system time updates
-    if (System.currentTimeMillis() > 946702800000L && !logRenamed && logReceiver != null) {
-      logReceiver.rename(new SimpleDateFormat("'/home/lvuser/Log'_yy-MM-dd_HH-mm-ss'.rlog'").format(new Date()));
-      logRenamed = true;
-    }
+    Logger.getInstance().recordOutput("SineWave", Math.sin(Logger.getInstance().getTimestamp() / 2) * 10);
+    Logger.getInstance().recordOutput("CosineWave", Math.cos(Logger.getInstance().getTimestamp() / 2) * 10);
+    Logger.getInstance().recordOutput("FastWave", Math.sin(Logger.getInstance().getTimestamp() * 2) * 10);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
