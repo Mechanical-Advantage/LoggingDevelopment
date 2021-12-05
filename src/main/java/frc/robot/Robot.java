@@ -52,7 +52,6 @@ public class Robot extends LoggedRobot {
         break;
     }
     if (Constants.isPhysicsSim) {
-      logger.addDataReceiver(new ByteLogReceiver("/Users/jonah/Downloads/"));
       logger.addDataReceiver(new LogSocketServer(5800));
     } else if (isReal()) {
       logger.addDataReceiver(new ByteLogReceiver("/home/lvuser/"));
