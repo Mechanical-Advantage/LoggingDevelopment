@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems.drivetrain;
 
-import frc.robot.logging.LogTable;
-import frc.robot.logging.inputs.LoggableInputs;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /** The set of loggable inputs for the drive subsystem. */
 public class DriveTrainInputs implements LoggableInputs {

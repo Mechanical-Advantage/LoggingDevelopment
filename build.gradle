@@ -45,9 +45,13 @@ def includeDesktopSupport = true
 // Also defines JUnit 4.
 dependencies {
     implementation wpi.deps.wpilib()
+    implementation files("/.../wpilib-shim-0.0.1.jar")
     nativeZip wpi.deps.wpilibJni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.wpilibJni(wpi.platforms.desktop)
 
+    nativeDesktopLib files("/.../libwpilibio.dylib")
+    implementation files("/.../conduit-api-0.0.1.jar")
+    implementation files("/.../junction-core-0.0.1.jar")
 
     implementation wpi.deps.vendor.java()
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
@@ -63,6 +67,10 @@ dependencies {
     // Websocket extensions require additional configuration.
     // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, false)
     // simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, false)
+}
+
+configurations.all {
+    exclude group: "edu.wpi.first.wpilibj"
 }
 
 // Simulation configuration (e.g. environment variables).

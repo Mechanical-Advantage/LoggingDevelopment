@@ -8,10 +8,10 @@ import java.util.Scanner;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.logging.LoggedRobot;
-import frc.robot.logging.Logger;
-import frc.robot.logging.inputs.LoggedNetworkTables;
-import frc.robot.logging.io.*;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
+import org.littletonrobotics.junction.io.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
