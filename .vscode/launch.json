@@ -5,20 +5,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "java",
-      "name": "Launch Logger",
-      "request": "launch",
-      "mainClass": "frc.robot.logging.Logger",
-      "projectName": "LoggingDevelopment"
-    },
-    {
-      "type": "java",
-      "name": "Launch Main",
-      "request": "launch",
-      "mainClass": "frc.robot.Main",
-      "projectName": "LoggingDevelopment"
-    },
-    {
       "type": "wpilib",
       "name": "WPILib Desktop Debug",
       "request": "launch",
