@@ -45,13 +45,13 @@ public class DriveWithJoysticks extends CommandBase {
   public void execute() {
     double baseSpeed = processAxis(leftY.getAsDouble() * -1);
     double turnSpeed = processAxis(rightX.getAsDouble());
-    driveTrain.drive((baseSpeed + turnSpeed) * maxSpeed, (baseSpeed - turnSpeed) * maxSpeed);
+    driveTrain.drivePercent((baseSpeed + turnSpeed) * maxSpeed, (baseSpeed - turnSpeed) * maxSpeed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    driveTrain.drive(0, 0);
+    driveTrain.drivePercent(0, 0);
   }
 
   // Returns true when the command should end.
