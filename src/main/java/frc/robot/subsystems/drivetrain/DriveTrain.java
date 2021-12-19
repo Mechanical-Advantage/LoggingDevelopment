@@ -11,7 +11,9 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
+import frc.robot.subsystems.drivetrain.DriveTrainIO.DriveTrainInputs;
+import org.littletonrobotics.akit.junction.Logger;
 
 public class DriveTrain extends SubsystemBase {
 
@@ -57,10 +59,17 @@ public class DriveTrain extends SubsystemBase {
   /**
    * Drive open loop with percent out.
    */
-  public void drive(double leftPercent, double rightPercent) {
+  public void drivePercent(double leftPercent, double rightPercent) {
     Logger.getInstance().recordOutput("DriveTrain/LeftPercentOut", leftPercent);
     Logger.getInstance().recordOutput("DriveTrain/RightPercentOut", rightPercent);
     io.setOutputVolts(leftPercent * 12, rightPercent * 12);
+  }
+
+  /**
+   * Drive open loop with voltage.
+   */
+  public void driveVoltage(double leftVoltage, double rightVoltage) {
+    io.setOutputVolts(leftVoltage, rightVoltage);
   }
 
   /**
@@ -82,6 +91,19 @@ public class DriveTrain extends SubsystemBase {
    * coordinate system).
    */
   public Rotation2d getGyroAngle() {
-    return Rotation2d.fromDegrees(inputs.gyroAngleDegrees * -1);
+    return new Rotation2d(inputs.gyroPositionRadians * -1);
+  }
+
+  /**
+   * Returns a set of data for SysId
+   */
+  public DriveTrainSysIdData getSysIdData() {
+    return new DriveTrainSysIdData(
+        inputs.leftPositionRadians,
+        inputs.rightPositionRadians,
+        inputs.leftVelocityRadiansPerSecond,
+        inputs.rightVelocityRadiansPerSecond,
+        inputs.gyroPositionRadians,
+        inputs.gyroVelocityRadiansPerSecond);
   }
 }

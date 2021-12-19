@@ -19,12 +19,14 @@ public class DriveTrainIOSim implements DriveTrainIO {
     sim.update(0.02);
     inputs.leftPositionRadians = sim.getLeftPositionMeters() / DriveTrain.wheelRadiusMeters;
     inputs.rightPositionRadians = sim.getRightPositionMeters() / DriveTrain.wheelRadiusMeters;
+    inputs.leftVelocityRadiansPerSecond = sim.getLeftVelocityMetersPerSecond() / DriveTrain.wheelRadiusMeters;
+    inputs.rightVelocityRadiansPerSecond = sim.getRightVelocityMetersPerSecond() / DriveTrain.wheelRadiusMeters;
     inputs.leftCurrentAmps = sim.getLeftCurrentDrawAmps();
     inputs.rightCurrentAmps = sim.getRightCurrentDrawAmps();
-    inputs.gyroAngleDegrees = sim.getHeading().getDegrees();
+    inputs.gyroPositionRadians = sim.getHeading().getRadians() * -1;
   }
 
   public void setOutputVolts(double leftVoltage, double rightVoltage) {
-    sim.setInputs(rightVoltage, leftVoltage);
+    sim.setInputs(leftVoltage, rightVoltage);
   }
 }

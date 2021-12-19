@@ -12,6 +12,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
 import org.littletonrobotics.junction.io.*;
+import frc.robot.Constants.Mode;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -33,7 +34,7 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     // Set up logging system
     Logger logger = Logger.getInstance();
-    setUseTiming(isReal() || Constants.isPhysicsSim);
+    setUseTiming(Constants.getMode() != Mode.REPLAY);
     LoggedNetworkTables.getInstance().addTable("/LiveWindow");
     logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -51,22 +52,29 @@ public class Robot extends LoggedRobot {
         logger.recordMetadata("GitDirty", "Uncomitted changes");
         break;
     }
-    if (Constants.isPhysicsSim) {
-      logger.addDataReceiver(new LogSocketServer(5800));
-    } else if (isReal()) {
-      logger.addDataReceiver(new ByteLogReceiver("/home/lvuser/"));
-      logger.addDataReceiver(new LogSocketServer(5800));
-    } else {
-      Scanner scanner = new Scanner(System.in);
-      System.out.print("Drag input log file here: ");
-      String filename = scanner.nextLine();
-      scanner.close();
-      if (filename.charAt(0) == '\'' || filename.charAt(0) == '"') {
-        filename = filename.substring(1, filename.length() - 1);
-      }
-      logger.setReplaySource(new ByteLogReplay(filename));
-      logger.addDataReceiver(new ByteLogReceiver(filename.substring(0,
-          filename.length() - 5) + "_simulated.rlog"));
+
+    switch (Constants.getMode()) {
+      case REAL:
+        logger.addDataReceiver(new ByteLogReceiver("/home/lvuser/"));
+        logger.addDataReceiver(new LogSocketServer(5800));
+        break;
+
+      case SIM:
+        logger.addDataReceiver(new LogSocketServer(5800));
+        break;
+
+      case REPLAY:
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Drag input log file here: ");
+        String filename = scanner.nextLine();
+        scanner.close();
+        if (filename.charAt(0) == '\'' || filename.charAt(0) == '"') {
+          filename = filename.substring(1, filename.length() - 1);
+        }
+        logger.setReplaySource(new ByteLogReplay(filename));
+        logger.addDataReceiver(new ByteLogReceiver(filename.substring(0,
+            filename.length() - 5) + "_simulated.rlog"));
+        break;
     }
     logger.start();
 
