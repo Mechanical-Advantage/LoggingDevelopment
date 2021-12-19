@@ -5,15 +5,14 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.Mode;
+import frc.robot.commands.ElevatorTest;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.SysIdCommand;
-import frc.robot.subsystems.drivetrain.DriveTrain;
-import frc.robot.subsystems.drivetrain.DriveTrainIO;
-import frc.robot.subsystems.drivetrain.DriveTrainIOReal;
-import frc.robot.subsystems.drivetrain.DriveTrainIOSim;
+import frc.robot.subsystems.drivetrain.*;
+import frc.robot.subsystems.elevator.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -25,6 +24,7 @@ import frc.robot.subsystems.drivetrain.DriveTrainIOSim;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveTrain driveTrain;
+  private final Elevator elevator;
 
   private final XboxController controller = new XboxController(0);
 
@@ -33,20 +33,44 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Instantiate subsystems
-    if (Constants.isPhysicsSim) {
-      driveTrain = new DriveTrain(new DriveTrainIOSim());
-    } else if (Robot.isReal()) {
-      driveTrain = new DriveTrain(new DriveTrainIOReal());
-    } else {
+    if (Constants.getMode() == Mode.REPLAY) {
       driveTrain = new DriveTrain(new DriveTrainIO() {
       });
+      elevator = new Elevator(new ElevatorIO() {
+      });
+    } else {
+      switch (Constants.getRobot()) {
+        case KITBOT:
+          driveTrain = new DriveTrain(new DriveTrainIOReal());
+          elevator = new Elevator(new ElevatorIO() {
+          });
+          break;
+
+        case SIMBOT:
+          driveTrain = new DriveTrain(new DriveTrainIOSim());
+          elevator = new Elevator(new ElevatorIOSim());
+          break;
+
+        case ROMI:
+          driveTrain = new DriveTrain(new DriveTrainIO() {
+          });
+          elevator = new Elevator(new ElevatorIO() {
+          });
+          break;
+
+        default:
+          driveTrain = new DriveTrain(new DriveTrainIO() {
+          });
+          elevator = new Elevator(new ElevatorIO() {
+          });
+          break;
+      }
     }
 
     // Set up default commands
     driveTrain.setDefaultCommand(
-        new DriveWithJoysticks(driveTrain,
-            () -> Constants.isPhysicsSim ? controller.getRawAxis(1) : controller.getY(Hand.kLeft),
-            () -> Constants.isPhysicsSim ? controller.getRawAxis(0) : controller.getY(Hand.kRight)));
+        new DriveWithJoysticks(driveTrain, () -> controller.getRawAxis(1), () -> controller.getRawAxis(0)));
+    elevator.setDefaultCommand(new ElevatorTest(elevator));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -67,6 +91,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new SysIdCommand(driveTrain, driveTrain::driveVoltage, driveTrain::getSysIdData);
+    return new SysIdCommand(elevator, elevator::runVoltage, elevator::getSysIdData);
   }
 }

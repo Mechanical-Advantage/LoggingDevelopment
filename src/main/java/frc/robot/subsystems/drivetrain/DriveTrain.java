@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
 import frc.robot.logging.Logger;
+import frc.robot.subsystems.drivetrain.DriveTrainIO.DriveTrainInputs;
 
 public class DriveTrain extends SubsystemBase {
 

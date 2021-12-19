@@ -4,8 +4,44 @@
 
 package frc.robot.subsystems.drivetrain;
 
+import frc.robot.logging.LogTable;
+import frc.robot.logging.inputs.LoggableInputs;
+
 /** Drive subsystem hardware interface. */
 public interface DriveTrainIO {
+  /** The set of loggable inputs for the drive subsystem. */
+  public static class DriveTrainInputs implements LoggableInputs {
+    public double leftPositionRadians = 0.0;
+    public double rightPositionRadians = 0.0;
+    public double leftVelocityRadiansPerSecond = 0.0;
+    public double rightVelocityRadiansPerSecond = 0.0;
+    public double leftCurrentAmps = 0.0;
+    public double rightCurrentAmps = 0.0;
+    public double gyroPositionRadians = 0.0;
+    public double gyroVelocityRadiansPerSecond = 0.0;
+
+    public void toLog(LogTable table) {
+      table.put("LeftPositionRadians", leftPositionRadians);
+      table.put("RightPositionRadians", rightPositionRadians);
+      table.put("LeftVelocityRadiansPerSecond", leftVelocityRadiansPerSecond);
+      table.put("RightVelocityRadiansPerSecond", rightVelocityRadiansPerSecond);
+      table.put("LeftCurrentAmps", leftCurrentAmps);
+      table.put("RightCurrentAmps", rightCurrentAmps);
+      table.put("GyroPositionRadians", gyroPositionRadians);
+      table.put("GyroVelocityRadiansPerSecond", gyroVelocityRadiansPerSecond);
+    }
+
+    public void fromLog(LogTable table) {
+      leftPositionRadians = table.getDouble("LeftPositionRadians", leftPositionRadians);
+      rightPositionRadians = table.getDouble("RightPositionRadians", rightPositionRadians);
+      leftVelocityRadiansPerSecond = table.getDouble("LeftVelocityRadiansPerSecond", leftVelocityRadiansPerSecond);
+      rightVelocityRadiansPerSecond = table.getDouble("RightVelocityRadiansPerSecond", rightVelocityRadiansPerSecond);
+      leftCurrentAmps = table.getDouble("LeftCurrentAmps", leftPositionRadians);
+      rightCurrentAmps = table.getDouble("RightCurrentAmps", rightPositionRadians);
+      gyroPositionRadians = table.getDouble("GyroPositionRadians", gyroPositionRadians);
+      gyroVelocityRadiansPerSecond = table.getDouble("GyroVelocityRadiansPerSecond", gyroVelocityRadiansPerSecond);
+    }
+  }
 
   /**
    * Updates the set of loggable inputs.
