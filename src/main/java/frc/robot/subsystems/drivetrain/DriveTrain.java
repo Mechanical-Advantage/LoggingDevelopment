@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.drivetrain;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -13,7 +15,6 @@ import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
 import frc.robot.subsystems.drivetrain.DriveTrainIO.DriveTrainInputs;
-import org.littletonrobotics.akit.junction.Logger;
 
 public class DriveTrain extends SubsystemBase {
 

@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems.template;
 
-import frc.robot.logging.LogTable;
-import frc.robot.logging.inputs.LoggableInputs;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /** Template hardware interface for an open loop subsystem. */
 public interface OpenLoopIO {
