@@ -4,9 +4,9 @@
 
 package frc.robot.subsystems.elevator;
 
-import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import edu.wpi.first.wpilibj.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 /** Elevator subsystem hardware interface for WPILib elevator sim. */
 public class ElevatorIOSim implements ElevatorIO {

@@ -5,8 +5,8 @@
 package frc.robot.subsystems.drivetrain;
 
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import frc.robot.util.RomiGyro;
 
 /** Drive subsystem hardware interface for the Romi. */
