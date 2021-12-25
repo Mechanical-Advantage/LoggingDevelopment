@@ -42,7 +42,6 @@ deploy {
 def includeDesktopSupport = true
 
 repositories {
-    mavenLocal()
     maven {
         url = uri("https://maven.pkg.github.com/Mechanical-Advantage/AdvantageKit")
         credentials {
@@ -52,17 +51,16 @@ repositories {
     }
 }
 
+configurations.all {
+    exclude group: "edu.wpi.first.wpilibj"
+}
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 4.
 dependencies {
     implementation wpi.deps.wpilib()
     nativeZip wpi.deps.wpilibJni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.wpilibJni(wpi.platforms.desktop)
-
-    implementation "org.littletonrobotics.akit.junction:wpilib-shim:0.0.2"
-    implementation "org.littletonrobotics.akit.junction:junction-core:0.0.2"
-    implementation "org.littletonrobotics.akit.conduit:conduit-api:0.0.2"
-    nativeDesktopZip "org.littletonrobotics.akit.conduit:conduit-wpilibio:0.0.2:osxx86-64@zip"
 
     implementation wpi.deps.vendor.java()
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
@@ -78,10 +76,6 @@ dependencies {
     // Websocket extensions require additional configuration.
     // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, false)
     simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, false)
-}
-
-configurations.all {
-    exclude group: "edu.wpi.first.wpilibj"
 }
 
 // Simulation configuration (e.g. environment variables).
