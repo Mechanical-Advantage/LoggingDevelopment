@@ -78,11 +78,11 @@ public class DriveTrain extends SubsystemBase {
         kI.setDefault(0.0);
         kD.setDefault(0.0);
         leftKS = 0.0;
-        leftKV = 0.0;
-        leftKA = 0.0;
+        leftKV = 0.15455;
+        leftKA = 0.026795;
         rightKS = 0.0;
-        rightKV = 0.0;
-        rightKA = 0.0;
+        rightKV = 0.15455;
+        rightKA = 0.026795;
         break;
       case ROMI:
         wheelRadiusMeters = 0.07;

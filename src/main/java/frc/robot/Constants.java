@@ -18,8 +18,8 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
   public static final boolean tuningMode = false;
-  public static final boolean driveTrainOpenLoop = false;
-  private static final Robot robot = Robot.ROMI;
+  public static final boolean driveTrainOpenLoop = true;
+  private static final Robot robot = Robot.SIMBOT;
   private static final Robot defaultRobot = Robot.KITBOT;
 
   public static Robot getRobot() {
