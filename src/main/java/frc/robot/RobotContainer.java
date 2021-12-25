@@ -4,11 +4,18 @@
 
 package frc.robot;
 
+import java.util.List;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.ElevatorTest;
+import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.SysIdCommand;
 import frc.robot.subsystems.drivetrain.*;
@@ -52,8 +59,7 @@ public class RobotContainer {
           break;
 
         case ROMI:
-          driveTrain = new DriveTrain(new DriveTrainIO() {
-          });
+          driveTrain = new DriveTrain(new DriveTrainIORomi());
           elevator = new Elevator(new ElevatorIO() {
           });
           break;
@@ -91,6 +97,18 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new SysIdCommand(elevator, elevator::runVoltage, elevator::getSysIdData);
+    // return new SysIdCommand(driveTrain, driveTrain::driveVoltage,
+    // driveTrain::getSysIdData);
+    return new InstantCommand(() -> driveTrain.setPose(new Pose2d())).andThen(
+        new MotionProfileCommand(driveTrain,
+            List.of(new Pose2d(0.25, -0.4, Rotation2d.fromDegrees(-90)),
+                new Pose2d(0, -0.8, Rotation2d.fromDegrees(-135)),
+                new Pose2d(-0.25, -1.2, Rotation2d.fromDegrees(-90)),
+                new Pose2d(0, -1.6, Rotation2d.fromDegrees(0)),
+                new Pose2d(0.25, -1.2, Rotation2d.fromDegrees(90)),
+                new Pose2d(0, -0.8, Rotation2d.fromDegrees(135)),
+                new Pose2d(-0.25, -0.4, Rotation2d.fromDegrees(90)),
+                new Pose2d(0.25, 0, Rotation2d.fromDegrees(0))),
+            0.0, false));
   }
 }

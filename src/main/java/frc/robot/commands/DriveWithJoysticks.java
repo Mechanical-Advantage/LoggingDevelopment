@@ -12,7 +12,7 @@ import frc.robot.subsystems.drivetrain.DriveTrain;
 public class DriveWithJoysticks extends CommandBase {
 
   private static final double deadband = 0.1;
-  private static final double maxSpeed = 0.25;
+  private static final double maxSpeed = 0.5;
 
   private final DriveTrain driveTrain;
   private final DoubleSupplier leftY;

@@ -42,20 +42,27 @@ deploy {
 def includeDesktopSupport = true
 
 repositories {
-  mavenLocal()
+    mavenLocal()
+    maven {
+        url = uri("https://maven.pkg.github.com/Mechanical-Advantage/AdvantageKit")
+        credentials {
+            username = "Mechanical-Advantage-Bot"
+            password = "ghp_ykO20iuCY5H2i" + "LgmNxz8VIKJ2uQa6g1DdV0i"
+        }
+    }
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 4.
 dependencies {
     implementation wpi.deps.wpilib()
-    implementation "org.littletonrobotics.akit.junction:wpilib-shim:dev"
     nativeZip wpi.deps.wpilibJni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.wpilibJni(wpi.platforms.desktop)
 
-    implementation "org.littletonrobotics.akit.junction:junction-core:dev"
-    implementation "org.littletonrobotics.akit.conduit:conduit-api:dev"
-    nativeDesktopLib files("/.../libwpilibio.XXX")
+    implementation "org.littletonrobotics.akit.junction:wpilib-shim:0.0.2"
+    implementation "org.littletonrobotics.akit.junction:junction-core:0.0.2"
+    implementation "org.littletonrobotics.akit.conduit:conduit-api:0.0.2"
+    nativeDesktopZip "org.littletonrobotics.akit.conduit:conduit-wpilibio:0.0.2:osxx86-64@zip"
 
     implementation wpi.deps.vendor.java()
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
@@ -70,7 +77,7 @@ dependencies {
 
     // Websocket extensions require additional configuration.
     // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, false)
-    // simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, false)
+    simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, false)
 }
 
 configurations.all {
@@ -80,7 +87,7 @@ configurations.all {
 // Simulation configuration (e.g. environment variables).
 sim {
     // Sets the websocket client remote host.
-    // envVar "HALSIMWS_HOST", "10.0.0.2"
+    envVar "HALSIMWS_HOST", "10.0.0.2"
 }
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')

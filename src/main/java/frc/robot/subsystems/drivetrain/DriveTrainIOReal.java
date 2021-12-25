@@ -56,15 +56,15 @@ public class DriveTrainIOReal implements DriveTrainIO {
     ahrs.zeroYaw();
   }
 
-  public void updateInputs(DriveTrainInputs inputs) {
-    inputs.leftPositionRadians = leftLeader.getSelectedSensorPosition() * radiansPerTick;
-    inputs.rightPositionRadians = rightLeader.getSelectedSensorPosition() * radiansPerTick;
-    inputs.leftVelocityRadiansPerSecond = leftLeader.getSelectedSensorVelocity() * radiansPerTick * 10;
-    inputs.rightVelocityRadiansPerSecond = rightLeader.getSelectedSensorVelocity() * radiansPerTick * 10;
-    inputs.leftCurrentAmps = leftLeader.getStatorCurrent();
-    inputs.rightCurrentAmps = rightLeader.getStatorCurrent();
-    inputs.gyroPositionRadians = Math.toRadians(ahrs.getAngle());
-    inputs.gyroVelocityRadiansPerSecond = Math.toRadians(ahrs.getRawGyroZ());
+  public void updateInputs(DriveTrainIOInputs inputs) {
+    inputs.leftPositionRad = leftLeader.getSelectedSensorPosition() * radiansPerTick;
+    inputs.rightPositionRad = rightLeader.getSelectedSensorPosition() * radiansPerTick;
+    inputs.leftVelocityRadPerSec = leftLeader.getSelectedSensorVelocity() * radiansPerTick * 10;
+    inputs.rightVelocityRadPerSec = rightLeader.getSelectedSensorVelocity() * radiansPerTick * 10;
+    inputs.leftCurrentAmps = new double[] { leftLeader.getStatorCurrent() };
+    inputs.rightCurrentAmps = new double[] { rightLeader.getStatorCurrent() };
+    inputs.gyroPositionRad = Math.toRadians(ahrs.getAngle());
+    inputs.gyroVelocityRadPerSec = Math.toRadians(ahrs.getRawGyroZ());
   }
 
   public void setOutputVolts(double leftVoltage, double rightVoltage) {

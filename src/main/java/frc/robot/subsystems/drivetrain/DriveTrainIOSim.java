@@ -4,29 +4,83 @@
 
 package frc.robot.subsystems.drivetrain;
 
+import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotMotor;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotWheelSize;
+import edu.wpi.first.wpilibj.util.Units;
 
 /** Drive subsystem hardware interface for WPILib drivetrain sim. */
 public class DriveTrainIOSim implements DriveTrainIO {
 
+  private static final double wheelRadiusMeters = Units.inchesToMeters(3.0);
   private DifferentialDrivetrainSim sim = DifferentialDrivetrainSim.createKitbotSim(
       KitbotMotor.kDualCIMPerSide, KitbotGearing.k7p31, KitbotWheelSize.SixInch, null);
+  private PIDController leftPID = new PIDController(0.0, 0.0, 0.0);
+  private PIDController rightPID = new PIDController(0.0, 0.0, 0.0);
 
-  public void updateInputs(DriveTrainInputs inputs) {
+  private boolean closedLoop = false;
+  private double leftFFVolts = 0.0;
+  private double rightFFVolts = 0.0;
+  private double basePositionLeft = 0.0;
+  private double basePositionRight = 0.0;
+  private double appliedVoltsLeft = 0.0;
+  private double appliedVoltsRight = 0.0;
+
+  public void updateInputs(DriveTrainIOInputs inputs) {
+    if (closedLoop) {
+      double leftVolts = leftPID.calculate(sim.getLeftVelocityMetersPerSecond() / wheelRadiusMeters) + leftFFVolts;
+      double rightVolts = rightPID.calculate(sim.getRightVelocityMetersPerSecond() / wheelRadiusMeters) + rightFFVolts;
+      appliedVoltsLeft = leftVolts;
+      appliedVoltsRight = rightVolts;
+      sim.setInputs(leftVolts, rightVolts);
+    }
+
     sim.update(0.02);
-    inputs.leftPositionRadians = sim.getLeftPositionMeters() / DriveTrain.wheelRadiusMeters;
-    inputs.rightPositionRadians = sim.getRightPositionMeters() / DriveTrain.wheelRadiusMeters;
-    inputs.leftVelocityRadiansPerSecond = sim.getLeftVelocityMetersPerSecond() / DriveTrain.wheelRadiusMeters;
-    inputs.rightVelocityRadiansPerSecond = sim.getRightVelocityMetersPerSecond() / DriveTrain.wheelRadiusMeters;
-    inputs.leftCurrentAmps = sim.getLeftCurrentDrawAmps();
-    inputs.rightCurrentAmps = sim.getRightCurrentDrawAmps();
-    inputs.gyroPositionRadians = sim.getHeading().getRadians() * -1;
+    inputs.leftPositionRad = (sim.getLeftPositionMeters() - basePositionLeft) / wheelRadiusMeters;
+    inputs.leftVelocityRadPerSec = sim.getLeftVelocityMetersPerSecond() / wheelRadiusMeters;
+    inputs.leftAppliedVolts = appliedVoltsLeft;
+    inputs.leftCurrentAmps = new double[] { sim.getLeftCurrentDrawAmps() };
+    inputs.leftTempCelcius = new double[] {};
+
+    inputs.rightPositionRad = (sim.getRightPositionMeters()) - basePositionRight / wheelRadiusMeters;
+    inputs.rightVelocityRadPerSec = sim.getRightVelocityMetersPerSecond() / wheelRadiusMeters;
+    inputs.rightAppliedVolts = appliedVoltsRight;
+    inputs.rightCurrentAmps = new double[] { sim.getRightCurrentDrawAmps() };
+    inputs.rightTempCelcius = new double[] {};
+
+    inputs.gyroPositionRad = sim.getHeading().getRadians() * -1;
+    inputs.gyroVelocityRadPerSec = 0.0;
   }
 
-  public void setOutputVolts(double leftVoltage, double rightVoltage) {
-    sim.setInputs(leftVoltage, rightVoltage);
+  public void setVoltage(double leftVolts, double rightVolts) {
+    closedLoop = false;
+    appliedVoltsLeft = leftVolts;
+    appliedVoltsRight = rightVolts;
+    sim.setInputs(leftVolts, rightVolts);
+  }
+
+  public void setVelocity(double leftVelocityRadPerSec, double rightVelocityRadPerSec, double leftFFVolts,
+      double rightFFVolts) {
+    closedLoop = true;
+    leftPID.setSetpoint(leftVelocityRadPerSec);
+    rightPID.setSetpoint(rightVelocityRadPerSec);
+    this.leftFFVolts = leftFFVolts;
+    this.rightFFVolts = rightFFVolts;
+  }
+
+  public void configurePID(double kp, double ki, double kd) {
+    leftPID.setP(kp);
+    leftPID.setI(ki);
+    leftPID.setD(kd);
+    rightPID.setP(kp);
+    rightPID.setI(ki);
+    rightPID.setD(kd);
+  }
+
+  public void resetPosition(double leftPositionRad, double rightPositionRad) {
+    basePositionLeft = (leftPositionRad * wheelRadiusMeters) - sim.getLeftPositionMeters();
+    basePositionRight = (rightPositionRad * wheelRadiusMeters) - sim.getRightPositionMeters();
   }
 }

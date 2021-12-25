@@ -17,7 +17,9 @@ import edu.wpi.first.wpilibj.RobotBase;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  private static final Robot robot = Robot.SIMBOT;
+  public static final boolean tuningMode = false;
+  public static final boolean driveTrainOpenLoop = false;
+  private static final Robot robot = Robot.ROMI;
   private static final Robot defaultRobot = Robot.KITBOT;
 
   public static Robot getRobot() {
