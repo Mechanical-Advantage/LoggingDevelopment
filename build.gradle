@@ -84,11 +84,6 @@ dependencies {
     simulationRelease wpi.sim.enableRelease()
 
     testImplementation 'junit:junit:4.12'
-
-    implementation "org.littletonrobotics.akit.junction:wpilib-shim:dev"
-    implementation "org.littletonrobotics.akit.junction:junction-core:dev"
-    implementation "org.littletonrobotics.akit.conduit:conduit-api:dev"
-    nativeRelease "org.littletonrobotics.akit.conduit:conduit-wpilibio:dev:osxx86-64@zip"
 }
 
 // Simulation configuration (e.g. environment variables).
