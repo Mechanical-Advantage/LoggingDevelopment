@@ -71,8 +71,8 @@ public class DriveTrain extends SubsystemBase {
         break;
       case SIMBOT:
         wheelRadiusMeters = Units.inchesToMeters(3.0);
-        maxVelocityMetersPerSec = 1.0;
-        maxAccelerationMetersPerSecSq = 1.0;
+        maxVelocityMetersPerSec = 1.8;
+        maxAccelerationMetersPerSecSq = 2.0;
         trackWidthMeters = 1.0;
         kP.setDefault(0.0);
         kI.setDefault(0.0);
