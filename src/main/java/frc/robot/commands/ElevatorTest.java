@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
+import java.util.Random;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -13,11 +13,13 @@ import frc.robot.subsystems.elevator.Elevator;
 public class ElevatorTest extends CommandBase {
   private final Elevator elevator;
   private double lastUpdate = 0.0;
+  private Random random = new Random();
 
   /** Creates a new DriveElevatorWithJoystick. */
   public ElevatorTest(Elevator elevator) {
     addRequirements(elevator);
     this.elevator = elevator;
+    random.setSeed((long) (Timer.getFPGATimestamp() * 1000000));
   }
 
   // Called when the command is initially scheduled.
@@ -29,7 +31,7 @@ public class ElevatorTest extends CommandBase {
   @Override
   public void execute() {
     if (Timer.getFPGATimestamp() - lastUpdate > 2.0) {
-      elevator.setPosition(Math.random() * 3);
+      elevator.setPosition(random.nextDouble() * 3);
       lastUpdate = Timer.getFPGATimestamp();
     }
   }
