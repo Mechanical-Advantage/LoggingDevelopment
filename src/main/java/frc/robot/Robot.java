@@ -22,9 +22,9 @@ import frc.robot.Constants.Mode;
  * project.
  */
 public class Robot extends LoggedRobot {
-  private Command m_autonomousCommand;
+  private Command autonomousCommand;
 
-  private RobotContainer m_robotContainer;
+  private RobotContainer robotContainer;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -79,9 +79,8 @@ public class Robot extends LoggedRobot {
     logger.start();
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    // and put our autonomous chooser on the dashboard.
+    robotContainer = new RobotContainer();
   }
 
   /**
@@ -95,13 +94,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotPeriodic() {
-    // Runs the Scheduler. This is responsible for polling buttons, adding
-    // newly-scheduled
-    // commands, running already-scheduled commands, removing finished or
-    // interrupted commands,
-    // and running subsystem periodic() methods. This must be called from the
-    // robot's periodic
-    // block in order for anything in the Command-based framework to work.
+    robotContainer.updateOI();
     CommandScheduler.getInstance().run();
 
     Logger.getInstance().recordOutput("SineWave", Math.sin(Logger.getInstance().getTimestamp() / 2) * 10);
@@ -124,11 +117,11 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    if (autonomousCommand != null) {
+      autonomousCommand.schedule();
     }
   }
 
@@ -143,8 +136,8 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
   }
 

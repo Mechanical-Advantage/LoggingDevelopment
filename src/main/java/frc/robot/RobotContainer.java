@@ -8,13 +8,17 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.ElevatorTest;
 import frc.robot.commands.MotionProfileCommand;
+import frc.robot.oi.HandheldOI;
+import frc.robot.oi.OISelector;
+import frc.robot.oi.OverrideOI;
 import frc.robot.subsystems.drivetrain.*;
 import frc.robot.subsystems.elevator.*;
 
@@ -30,7 +34,9 @@ public class RobotContainer {
   private final DriveTrain driveTrain;
   private final Elevator elevator;
 
-  private final XboxController controller = new XboxController(0);
+  private OverrideOI overrideOI = new OverrideOI();
+  private HandheldOI handheldOI = new HandheldOI() {
+  };
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -73,20 +79,31 @@ public class RobotContainer {
 
     // Set up default commands
     driveTrain.setDefaultCommand(
-        new DriveWithJoysticks(driveTrain, () -> controller.getRawAxis(1), () -> controller.getRawAxis(0)));
+        new DriveWithJoysticks(driveTrain, () -> handheldOI.getLeftDriveX(), () -> handheldOI.getLeftDriveY(),
+            () -> handheldOI.getRightDriveX(), () -> handheldOI.getRightDriveY()));
     elevator.setDefaultCommand(new ElevatorTest(elevator));
 
-    // Configure the button bindings
-    configureButtonBindings();
+    // Instantiate OI classes and bind buttons
+    updateOI();
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by instantiating a {@link GenericHID} or one of its subclasses
-   * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
-   * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   * This method scans for any changes to the connected joystick. If anything
+   * changed, it creates new OI objects and binds all of the buttons to commands.
    */
-  private void configureButtonBindings() {
+  public void updateOI() {
+    if (!OISelector.didJoysticksChange()) {
+      return;
+    }
+
+    CommandScheduler.getInstance().clearButtons();
+    overrideOI = OISelector.findOverrideOI();
+    handheldOI = OISelector.findHandheldOI();
+
+    // Bind new buttons
+    handheldOI.getAutoAimButton().whenActive(new PrintCommand("Activating the auto aim!"));
+    handheldOI.getIntakeButton().whenActive(new PrintCommand("Time to intake!"));
+    handheldOI.getShootButton().whenActive(new PrintCommand("Time to shoot!"));
   }
 
   /**

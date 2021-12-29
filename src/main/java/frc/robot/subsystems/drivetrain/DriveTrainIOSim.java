@@ -16,7 +16,7 @@ public class DriveTrainIOSim implements DriveTrainIO {
 
   private static final double wheelRadiusMeters = Units.inchesToMeters(3.0);
   private DifferentialDrivetrainSim sim = DifferentialDrivetrainSim.createKitbotSim(
-      KitbotMotor.kDualCIMPerSide, KitbotGearing.k7p31, KitbotWheelSize.SixInch, null);
+      KitbotMotor.kDualCIMPerSide, KitbotGearing.k7p31, KitbotWheelSize.kSixInch, null);
   private PIDController leftPID = new PIDController(0.0, 0.0, 0.0);
   private PIDController rightPID = new PIDController(0.0, 0.0, 0.0);
 
