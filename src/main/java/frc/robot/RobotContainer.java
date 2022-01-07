@@ -23,11 +23,10 @@ import frc.robot.subsystems.drivetrain.*;
 import frc.robot.subsystems.elevator.*;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a "declarative" paradigm, very little robot logic should
- * actually be handled in the {@link Robot} periodic methods (other than the
- * scheduler calls). Instead, the structure of the robot (including subsystems,
- * commands, and button mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
@@ -35,8 +34,7 @@ public class RobotContainer {
   private final Elevator elevator;
 
   private OverrideOI overrideOI = new OverrideOI();
-  private HandheldOI handheldOI = new HandheldOI() {
-  };
+  private HandheldOI handheldOI = new HandheldOI() {};
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -44,16 +42,13 @@ public class RobotContainer {
   public RobotContainer() {
     // Instantiate subsystems
     if (Constants.getMode() == Mode.REPLAY) {
-      driveTrain = new DriveTrain(new DriveTrainIO() {
-      });
-      elevator = new Elevator(new ElevatorIO() {
-      });
+      driveTrain = new DriveTrain(new DriveTrainIO() {});
+      elevator = new Elevator(new ElevatorIO() {});
     } else {
       switch (Constants.getRobot()) {
         case KITBOT:
           driveTrain = new DriveTrain(new DriveTrainIOReal());
-          elevator = new Elevator(new ElevatorIO() {
-          });
+          elevator = new Elevator(new ElevatorIO() {});
           break;
 
         case SIMBOT:
@@ -63,24 +58,21 @@ public class RobotContainer {
 
         case ROMI:
           driveTrain = new DriveTrain(new DriveTrainIORomi());
-          elevator = new Elevator(new ElevatorIO() {
-          });
+          elevator = new Elevator(new ElevatorIO() {});
           break;
 
         default:
-          driveTrain = new DriveTrain(new DriveTrainIO() {
-          });
-          elevator = new Elevator(new ElevatorIO() {
-          });
+          driveTrain = new DriveTrain(new DriveTrainIO() {});
+          elevator = new Elevator(new ElevatorIO() {});
           break;
 
       }
     }
 
     // Set up default commands
-    driveTrain.setDefaultCommand(
-        new DriveWithJoysticks(driveTrain, () -> handheldOI.getLeftDriveX(), () -> handheldOI.getLeftDriveY(),
-            () -> handheldOI.getRightDriveX(), () -> handheldOI.getRightDriveY()));
+    driveTrain.setDefaultCommand(new DriveWithJoysticks(driveTrain,
+        () -> handheldOI.getLeftDriveX(), () -> handheldOI.getLeftDriveY(),
+        () -> handheldOI.getRightDriveX(), () -> handheldOI.getRightDriveY()));
     elevator.setDefaultCommand(new ElevatorTest(elevator));
 
     // Instantiate OI classes and bind buttons
@@ -88,8 +80,8 @@ public class RobotContainer {
   }
 
   /**
-   * This method scans for any changes to the connected joystick. If anything
-   * changed, it creates new OI objects and binds all of the buttons to commands.
+   * This method scans for any changes to the connected joystick. If anything changed, it creates
+   * new OI objects and binds all of the buttons to commands.
    */
   public void updateOI() {
     if (!OISelector.didJoysticksChange()) {
@@ -101,8 +93,10 @@ public class RobotContainer {
     handheldOI = OISelector.findHandheldOI();
 
     // Bind new buttons
-    handheldOI.getAutoAimButton().whenActive(new PrintCommand("Activating the auto aim!"));
-    handheldOI.getIntakeButton().whenActive(new PrintCommand("Time to intake!"));
+    handheldOI.getAutoAimButton()
+        .whenActive(new PrintCommand("Activating the auto aim!"));
+    handheldOI.getIntakeButton()
+        .whenActive(new PrintCommand("Time to intake!"));
     handheldOI.getShootButton().whenActive(new PrintCommand("Time to shoot!"));
   }
 
@@ -114,8 +108,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // return new SysIdCommand(driveTrain, driveTrain::driveVoltage,
     // driveTrain::getSysIdData);
-    return new InstantCommand(() -> driveTrain.setPose(new Pose2d())).andThen(
-        new MotionProfileCommand(driveTrain,
+    return new InstantCommand(() -> driveTrain.setPose(new Pose2d()))
+        .andThen(new MotionProfileCommand(driveTrain,
             List.of(new Pose2d(0.25, -0.4, Rotation2d.fromDegrees(-90)),
                 new Pose2d(0, -0.8, Rotation2d.fromDegrees(-135)),
                 new Pose2d(-0.25, -1.2, Rotation2d.fromDegrees(-90)),
