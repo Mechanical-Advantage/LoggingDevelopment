@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.Scanner;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -24,6 +22,10 @@ public class Robot extends LoggedRobot {
   private Command autonomousCommand;
 
   private RobotContainer robotContainer;
+
+  public Robot() {
+    super(Constants.loopPeriodSecs);
+  }
 
   /**
    * This function is run when the robot is first started up and should be used for any

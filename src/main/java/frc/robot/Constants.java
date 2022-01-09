@@ -20,6 +20,7 @@ public final class Constants {
   public static final boolean driveTrainOpenLoop = true;
   private static final Robot robot = Robot.KITBOT;
   private static final Robot defaultRobot = Robot.KITBOT;
+  public static final double loopPeriodSecs = 0.02;
 
   public static Robot getRobot() {
     if (RobotBase.isReal()) {
