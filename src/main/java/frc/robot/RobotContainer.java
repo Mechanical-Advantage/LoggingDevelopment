@@ -16,6 +16,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.ElevatorTest;
 import frc.robot.commands.MotionProfileCommand;
+import frc.robot.commands.VisionTest;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
@@ -93,8 +94,10 @@ public class RobotContainer {
     handheldOI = OISelector.findHandheldOI();
 
     // Bind new buttons
+    // handheldOI.getAutoAimButton()
+    // .whenActive(new PrintCommand("Activating the auto aim!"));
     handheldOI.getAutoAimButton()
-        .whenActive(new PrintCommand("Activating the auto aim!"));
+        .whileActiveContinuous(new VisionTest(driveTrain));
     handheldOI.getIntakeButton()
         .whenActive(new PrintCommand("Time to intake!"));
     handheldOI.getShootButton().whenActive(new PrintCommand("Time to shoot!"));
