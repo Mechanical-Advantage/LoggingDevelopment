@@ -1,6 +1,5 @@
 {
   "java.configuration.updateBuildConfiguration": "automatic",
-  "java.server.launchMode": "Standard",
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,
@@ -11,7 +10,19 @@
     "**/.classpath": true,
     "**/.project": true,
     "**/.settings": true,
-    "**/.factorypath": true,
-    "**/*~": true
-  }
+    "**/.factorypath": true
+  },
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.autoIndent": "full",
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "java.format.enabled": true,
+  "java.format.comments.enabled": true,
+  "java.format.onType.enabled": true,
+  "java.server.launchMode": "Hybrid",
+  "java.format.settings.url": "https://raw.githubusercontent.com/wpilibsuite/styleguide/main/ide/eclipse-java-google-style.xml"
 }

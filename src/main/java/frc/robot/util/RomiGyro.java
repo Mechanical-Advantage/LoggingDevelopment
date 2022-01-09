@@ -29,9 +29,12 @@ public class RomiGyro {
       m_simRateY = gyroSimDevice.createDouble("rate_y", Direction.kInput, 0.0);
       m_simRateZ = gyroSimDevice.createDouble("rate_z", Direction.kInput, 0.0);
 
-      m_simAngleX = gyroSimDevice.createDouble("angle_x", Direction.kInput, 0.0);
-      m_simAngleY = gyroSimDevice.createDouble("angle_y", Direction.kInput, 0.0);
-      m_simAngleZ = gyroSimDevice.createDouble("angle_z", Direction.kInput, 0.0);
+      m_simAngleX =
+          gyroSimDevice.createDouble("angle_x", Direction.kInput, 0.0);
+      m_simAngleY =
+          gyroSimDevice.createDouble("angle_y", Direction.kInput, 0.0);
+      m_simAngleZ =
+          gyroSimDevice.createDouble("angle_z", Direction.kInput, 0.0);
     }
   }
 

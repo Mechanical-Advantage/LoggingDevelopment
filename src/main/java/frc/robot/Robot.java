@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.Scanner;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -15,20 +13,23 @@ import org.littletonrobotics.junction.io.*;
 import frc.robot.Constants.Mode;
 
 /**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the TimedRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the name of this class or
+ * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
 public class Robot extends LoggedRobot {
-  private Command m_autonomousCommand;
+  private Command autonomousCommand;
 
-  private RobotContainer m_robotContainer;
+  private RobotContainer robotContainer;
+
+  public Robot() {
+    super(Constants.loopPeriodSecs);
+  }
 
   /**
-   * This function is run when the robot is first started up and should be used
-   * for any initialization code.
+   * This function is run when the robot is first started up and should be used for any
+   * initialization code.
    */
   @Override
   public void robotInit() {
@@ -64,78 +65,63 @@ public class Robot extends LoggedRobot {
         break;
 
       case REPLAY:
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Drag input log file here: ");
-        String filename = scanner.nextLine();
-        scanner.close();
-        if (filename.charAt(0) == '\'' || filename.charAt(0) == '"') {
-          filename = filename.substring(1, filename.length() - 1);
-        }
-        logger.setReplaySource(new ByteLogReplay(filename));
-        logger.addDataReceiver(new ByteLogReceiver(filename.substring(0,
-            filename.length() - 5) + "_simulated.rlog"));
+        String path = ByteLogReplay.promptForPath();
+        logger.setReplaySource(new ByteLogReplay(path));
+        logger.addDataReceiver(new ByteLogReceiver(
+            ByteLogReceiver.addPathSuffix(path, "_simulated")));
         break;
     }
     logger.start();
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    // and put our autonomous chooser on the dashboard.
+    robotContainer = new RobotContainer();
   }
 
   /**
-   * This function is called every robot packet, no matter the mode. Use this for
-   * items like diagnostics that you want ran during disabled, autonomous,
-   * teleoperated and test.
+   * This function is called every robot packet, no matter the mode. Use this for items like
+   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
    *
    * <p>
-   * This runs after the mode specific periodic functions, but before LiveWindow
-   * and SmartDashboard integrated updating.
+   * This runs after the mode specific periodic functions, but before LiveWindow and SmartDashboard
+   * integrated updating.
    */
   @Override
   public void robotPeriodic() {
-    // Runs the Scheduler. This is responsible for polling buttons, adding
-    // newly-scheduled
-    // commands, running already-scheduled commands, removing finished or
-    // interrupted commands,
-    // and running subsystem periodic() methods. This must be called from the
-    // robot's periodic
-    // block in order for anything in the Command-based framework to work.
+    robotContainer.updateOI();
     CommandScheduler.getInstance().run();
 
-    Logger.getInstance().recordOutput("SineWave", Math.sin(Logger.getInstance().getTimestamp() / 2) * 10);
-    Logger.getInstance().recordOutput("CosineWave", Math.cos(Logger.getInstance().getTimestamp() / 2) * 10);
-    Logger.getInstance().recordOutput("FastWave", Math.sin(Logger.getInstance().getTimestamp() * 2) * 10);
+    Logger.getInstance().recordOutput("SineWave",
+        Math.sin(Logger.getInstance().getTimestamp() / 2) * 10);
+    Logger.getInstance().recordOutput("CosineWave",
+        Math.cos(Logger.getInstance().getTimestamp() / 2) * 10);
+    Logger.getInstance().recordOutput("FastWave",
+        Math.sin(Logger.getInstance().getTimestamp() * 2) * 10);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {
-  }
+  public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {
-  }
+  public void disabledPeriodic() {}
 
   /**
-   * This autonomous runs the autonomous command selected by your
-   * {@link RobotContainer} class.
+   * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
    */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    if (autonomousCommand != null) {
+      autonomousCommand.schedule();
     }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void teleopInit() {
@@ -143,15 +129,14 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void testInit() {
@@ -161,6 +146,5 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {
-  }
+  public void testPeriodic() {}
 }

@@ -29,14 +29,11 @@ public interface NoEncoderIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(NoEncoderIOInputs inputs) {
-  }
+  public default void updateInputs(NoEncoderIOInputs inputs) {}
 
   /** Run open loop at the specified voltage. */
-  public default void setVoltage(double volts) {
-  }
+  public default void setVoltage(double volts) {}
 
   /** Enable or disable brake mode. */
-  public default void setBrakeMode(boolean enable) {
-  }
+  public default void setBrakeMode(boolean enable) {}
 }

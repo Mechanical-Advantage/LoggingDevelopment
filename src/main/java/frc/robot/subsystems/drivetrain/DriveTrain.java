@@ -6,13 +6,21 @@ package frc.robot.subsystems.drivetrain;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N5;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Units;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
@@ -41,11 +49,18 @@ public class DriveTrain extends SubsystemBase {
   private final SimpleMotorFeedforward leftFFModel;
   private final SimpleMotorFeedforward rightFFModel;
 
+  private final Matrix<N5, N1> stateStdDev =
+      new MatBuilder<>(Nat.N5(), Nat.N1()).fill(0.02, 0.02, 0.01, 0.02, 0.02);
+  private final Matrix<N3, N1> localMeasurementStdDevs =
+      new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01);
+  private final Matrix<N3, N1> globalMeasurementStdDevs =
+      new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01);
+
   private double lastKP = 0.0;
   private double lastKI = 0.0;
   private double lastKD = 0.0;
 
-  private DifferentialDriveOdometry odometry;
+  private DifferentialDrivePoseEstimator odometry;
   private Field2d field2d = new Field2d();
   private double baseDistanceLeft = 0.0;
   private double baseDistanceRight = 0.0;
@@ -71,7 +86,7 @@ public class DriveTrain extends SubsystemBase {
         break;
       case SIMBOT:
         wheelRadiusMeters = Units.inchesToMeters(3.0);
-        maxVelocityMetersPerSec = 1.8;
+        maxVelocityMetersPerSec = 5.5;
         maxAccelerationMetersPerSecSq = 2.0;
         trackWidthMeters = 1.0;
         kP.setDefault(0.0);
@@ -86,8 +101,8 @@ public class DriveTrain extends SubsystemBase {
         break;
       case ROMI:
         wheelRadiusMeters = 0.07;
-        maxVelocityMetersPerSec = 0.75;
-        maxAccelerationMetersPerSecSq = 0.5;
+        maxVelocityMetersPerSec = 0.3;
+        maxAccelerationMetersPerSecSq = 0.1;
         trackWidthMeters = 0.281092;
         kP.setDefault(0.15);
         kI.setDefault(0.3);
@@ -133,18 +148,26 @@ public class DriveTrain extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("DriveTrain", inputs);
 
-    Logger.getInstance().recordOutput("DriveTrain/LeftVelocityMetersPerSec", getLeftVelocityMetersPerSec());
-    Logger.getInstance().recordOutput("DriveTrain/RightVelocityMetersPerSec", getRightVelocityMetersPerSec());
+    Logger.getInstance().recordOutput("DriveTrain/LeftVelocityMetersPerSec",
+        getLeftVelocityMetersPerSec());
+    Logger.getInstance().recordOutput("DriveTrain/RightVelocityMetersPerSec",
+        getRightVelocityMetersPerSec());
 
     if (odometry == null) {
-      odometry = new DifferentialDriveOdometry(new Rotation2d(inputs.gyroPositionRad * -1));
+      odometry = new DifferentialDrivePoseEstimator(
+          new Rotation2d(inputs.gyroPositionRad * -1), new Pose2d(),
+          stateStdDev, localMeasurementStdDevs, globalMeasurementStdDevs);
       baseDistanceLeft = getLeftPositionMeters();
       baseDistanceRight = getRightPositionMeters();
     } else {
-      Pose2d pose = odometry.update(new Rotation2d(inputs.gyroPositionRad * -1),
+      Pose2d pose = odometry.updateWithTime(Timer.getFPGATimestamp(),
+          new Rotation2d(inputs.gyroPositionRad * -1),
+          new DifferentialDriveWheelSpeeds(getLeftVelocityMetersPerSec(),
+              getRightVelocityMetersPerSec()),
           getLeftPositionMeters() - baseDistanceLeft,
           getRightPositionMeters() - baseDistanceRight);
-      Logger.getInstance().recordOutput("Odometry/RotationDegrees", pose.getRotation().getDegrees());
+      Logger.getInstance().recordOutput("Odometry/RotationDegrees",
+          pose.getRotation().getDegrees());
       Logger.getInstance().recordOutput("Odometry/XMeters", pose.getX());
       Logger.getInstance().recordOutput("Odometry/YMeters", pose.getY());
       field2d.setRobotPose(pose);
@@ -171,22 +194,26 @@ public class DriveTrain extends SubsystemBase {
    * Drive at the specified percentage of max speed.
    */
   public void drivePercent(double leftPercent, double rightPercent) {
-    driveVelocity(leftPercent * maxVelocityMetersPerSec, rightPercent * maxVelocityMetersPerSec);
+    driveVelocity(leftPercent * maxVelocityMetersPerSec,
+        rightPercent * maxVelocityMetersPerSec);
   }
 
   /**
    * Drive at the specified velocity.
    */
-  public void driveVelocity(double leftVelocityMetersPerSec, double rightVelocityMetersPerSec) {
+  public void driveVelocity(double leftVelocityMetersPerSec,
+      double rightVelocityMetersPerSec) {
     double leftVelocityRadPerSec = leftVelocityMetersPerSec / wheelRadiusMeters;
-    double rightVelocityRadPerSec = rightVelocityMetersPerSec / wheelRadiusMeters;
+    double rightVelocityRadPerSec =
+        rightVelocityMetersPerSec / wheelRadiusMeters;
     double leftVolts = leftFFModel.calculate(leftVelocityRadPerSec);
     double rightVolts = rightFFModel.calculate(rightVelocityRadPerSec);
 
     if (Constants.driveTrainOpenLoop) {
       io.setVoltage(leftVolts, rightVolts);
     } else {
-      io.setVelocity(leftVelocityRadPerSec, rightVelocityRadPerSec, leftVolts, rightVolts);
+      io.setVelocity(leftVelocityRadPerSec, rightVelocityRadPerSec, leftVolts,
+          rightVolts);
     }
   }
 
@@ -205,7 +232,7 @@ public class DriveTrain extends SubsystemBase {
    * Returns the current odometry position.
    */
   public Pose2d getPose() {
-    return odometry.getPoseMeters();
+    return odometry.getEstimatedPosition();
   }
 
   /**
@@ -215,6 +242,13 @@ public class DriveTrain extends SubsystemBase {
     odometry.resetPosition(pose, new Rotation2d(inputs.gyroPositionRad * -1));
     baseDistanceLeft = getLeftPositionMeters();
     baseDistanceRight = getRightPositionMeters();
+  }
+
+  /**
+   * Adds a new vision measurement to update odometry.
+   */
+  public void addVisionMeasurement(Pose2d pose, double timestamp) {
+    odometry.addVisionMeasurement(pose, timestamp);
   }
 
   /**
@@ -279,12 +313,9 @@ public class DriveTrain extends SubsystemBase {
    * Returns a set of data for SysId
    */
   public DriveTrainSysIdData getSysIdData() {
-    return new DriveTrainSysIdData(
-        inputs.leftPositionRad,
-        inputs.rightPositionRad,
-        inputs.leftVelocityRadPerSec,
-        inputs.rightVelocityRadPerSec,
-        inputs.gyroPositionRad,
+    return new DriveTrainSysIdData(inputs.leftPositionRad,
+        inputs.rightPositionRad, inputs.leftVelocityRadPerSec,
+        inputs.rightVelocityRadPerSec, inputs.gyroPositionRad,
         inputs.gyroVelocityRadPerSec);
   }
 }

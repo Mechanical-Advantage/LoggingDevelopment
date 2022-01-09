@@ -27,7 +27,8 @@ public interface ElevatorIO {
 
     public void fromLog(LogTable table) {
       positionRad = table.getDouble("PositionRad", positionRad);
-      velocityRadPerSec = table.getDouble("VelocityRadPerSec", velocityRadPerSec);
+      velocityRadPerSec =
+          table.getDouble("VelocityRadPerSec", velocityRadPerSec);
       appliedVolts = table.getDouble("AppliedVolts", appliedVolts);
       currentAmps = table.getDoubleArray("CurrentAmps", currentAmps);
       tempCelcius = table.getDoubleArray("TempCelcius", tempCelcius);
@@ -35,31 +36,25 @@ public interface ElevatorIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(ElevatorIOInputs inputs) {
-  }
+  public default void updateInputs(ElevatorIOInputs inputs) {}
 
   /** Run open loop at the specified voltage. */
-  public default void setVoltage(double volts) {
-  }
+  public default void setVoltage(double volts) {}
 
   /**
    * Run closed loop at the specified velocity.
    * 
    * @param velocityRadPerSec Velocity setpoint.
-   * @param ffVolts           Feed forward voltage from model.
+   * @param ffVolts Feed forward voltage from model.
    */
-  public default void setVelocity(double velocityRadPerSec, double ffVolts) {
-  }
+  public default void setVelocity(double velocityRadPerSec, double ffVolts) {}
 
   /** Enable or disable brake mode. */
-  public default void setBrakeMode(boolean enable) {
-  }
+  public default void setBrakeMode(boolean enable) {}
 
   /** Set velocity PID constants. */
-  public default void configurePID(double kp, double ki, double kd) {
-  }
+  public default void configurePID(double kp, double ki, double kd) {}
 
   /** Reset the encoder(s) to a known position. */
-  public default void resetPosition(double positionRad) {
-  }
+  public default void resetPosition(double positionRad) {}
 }

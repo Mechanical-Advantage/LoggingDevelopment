@@ -4,19 +4,19 @@
 
 package frc.robot.subsystems.drivetrain;
 
-import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotMotor;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotWheelSize;
-import edu.wpi.first.wpilibj.util.Units;
+import edu.wpi.first.math.util.Units;
 
 /** Drive subsystem hardware interface for WPILib drivetrain sim. */
 public class DriveTrainIOSim implements DriveTrainIO {
 
   private static final double wheelRadiusMeters = Units.inchesToMeters(3.0);
   private DifferentialDrivetrainSim sim = DifferentialDrivetrainSim.createKitbotSim(
-      KitbotMotor.kDualCIMPerSide, KitbotGearing.k7p31, KitbotWheelSize.SixInch, null);
+      KitbotMotor.kDualCIMPerSide, KitbotGearing.k7p31, KitbotWheelSize.kSixInch, null);
   private PIDController leftPID = new PIDController(0.0, 0.0, 0.0);
   private PIDController rightPID = new PIDController(0.0, 0.0, 0.0);
 
