@@ -15,10 +15,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.DriveTrain;
 
 public class DriveWithJoysticks extends CommandBase {
-  private static final double maxSpeed = 1.0;
   private static final double deadband = 0.05;
-  private static final double curvatureTurnSensitivity = 1.0; // Greater than 1 allows for reverse output on inner side
-  private static final double hybridCurvatureThreshold = 0.15; // Under this base speed, blend to split arcade
+  private static final double hybridArcadeTurnSensitivity = 0.5;
+  private static final double hybridCurvatureTurnSensitivity = 1.0;
+  private static final double hybridCurvatureThreshold = 0.15; // Under this base speed, blend to
+                                                               // split arcade
 
   private final DriveTrain driveTrain;
   private final Supplier<Double> leftX;
@@ -26,11 +27,13 @@ public class DriveWithJoysticks extends CommandBase {
   private final Supplier<Double> rightX;
   private final Supplier<Double> rightY;
 
-  private final SendableChooser<JoystickMode> modeChooser = new SendableChooser<JoystickMode>();
+  private final SendableChooser<JoystickMode> modeChooser =
+      new SendableChooser<JoystickMode>();
 
   /** Creates a new DriveWithJoysticks. */
-  public DriveWithJoysticks(DriveTrain driveTrain, Supplier<Double> leftX, Supplier<Double> leftY,
-      Supplier<Double> rightX, Supplier<Double> rightY) {
+  public DriveWithJoysticks(DriveTrain driveTrain, Supplier<Double> leftX,
+      Supplier<Double> leftY, Supplier<Double> rightX,
+      Supplier<Double> rightY) {
     addRequirements(driveTrain);
     this.driveTrain = driveTrain;
     this.leftX = leftX;
@@ -46,13 +49,13 @@ public class DriveWithJoysticks extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-  }
+  public void initialize() {}
 
   /** Apply deadband and square output. */
   private double processJoystickAxis(double axis) {
     if (Math.abs(axis) > deadband) {
-      double adjustedValue = Math.copySign((Math.abs(axis) - deadband) / (1 - deadband), axis);
+      double adjustedValue =
+          Math.copySign((Math.abs(axis) - deadband) / (1 - deadband), axis);
       return adjustedValue * Math.abs(adjustedValue);
     } else {
       return 0;
@@ -73,11 +76,10 @@ public class DriveWithJoysticks extends CommandBase {
       return new WheelSpeeds(baseSpeed + turnSpeed, baseSpeed - turnSpeed);
     }
 
-    public static WheelSpeeds fromCurvature(double baseSpeed, double turnSpeed) {
-      double maxBaseSpeed = 1 / (1 + (Math.abs(turnSpeed) * curvatureTurnSensitivity)); // Max speed where no output >1
-      double baseSpeedLimited = MathUtil.clamp(baseSpeed, maxBaseSpeed * -1, maxBaseSpeed);
-      turnSpeed = Math.abs(baseSpeedLimited) * turnSpeed * curvatureTurnSensitivity;
-      return new WheelSpeeds(baseSpeedLimited + turnSpeed, baseSpeedLimited - turnSpeed);
+    public static WheelSpeeds fromCurvature(double baseSpeed,
+        double turnSpeed) {
+      turnSpeed = Math.abs(baseSpeed) * turnSpeed;
+      return new WheelSpeeds(baseSpeed + turnSpeed, baseSpeed - turnSpeed);
     }
   }
 
@@ -103,20 +105,28 @@ public class DriveWithJoysticks extends CommandBase {
         outputSpeeds = WheelSpeeds.fromArcade(leftYValue, rightXValue);
         break;
       case CURVATURE:
-        WheelSpeeds splitArcadeSpeeds = WheelSpeeds.fromArcade(leftYValue, rightXValue);
-        WheelSpeeds curvatureSpeeds = WheelSpeeds.fromCurvature(leftYValue, rightXValue);
+        WheelSpeeds splitArcadeSpeeds = WheelSpeeds.fromArcade(leftYValue,
+            rightXValue * hybridArcadeTurnSensitivity);
+        WheelSpeeds curvatureSpeeds = WheelSpeeds.fromCurvature(leftYValue,
+            rightXValue * hybridCurvatureTurnSensitivity);
 
         double hybridScale = Math.abs(leftYValue) / hybridCurvatureThreshold;
         hybridScale = hybridScale > 1 ? 1 : hybridScale;
         outputSpeeds = new WheelSpeeds(
-            (curvatureSpeeds.left * hybridScale) + (splitArcadeSpeeds.left * (1 - hybridScale)),
-            (curvatureSpeeds.right * hybridScale) + (splitArcadeSpeeds.right * (1 - hybridScale)));
+            (curvatureSpeeds.left * hybridScale)
+                + (splitArcadeSpeeds.left * (1 - hybridScale)),
+            (curvatureSpeeds.right * hybridScale)
+                + (splitArcadeSpeeds.right * (1 - hybridScale)));
         break;
     }
+    double leftOutput = MathUtil.clamp(outputSpeeds.left, -1, 1);
+    double rightOutput = MathUtil.clamp(outputSpeeds.right, -1, 1);
 
-    Logger.getInstance().recordOutput("DriveWithJoysticks/OutputLeft", outputSpeeds.left);
-    Logger.getInstance().recordOutput("DriveWithJoysticks/OutputRight", outputSpeeds.right);
-    driveTrain.drivePercent(outputSpeeds.left * maxSpeed, outputSpeeds.right * maxSpeed);
+    Logger.getInstance().recordOutput("DriveWithJoysticks/OutputLeft",
+        leftOutput);
+    Logger.getInstance().recordOutput("DriveWithJoysticks/OutputRight",
+        rightOutput);
+    driveTrain.drivePercent(leftOutput, rightOutput);
   }
 
   // Called once the command ends or is interrupted.
