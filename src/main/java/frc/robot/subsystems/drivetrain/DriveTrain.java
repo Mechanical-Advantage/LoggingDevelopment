@@ -166,10 +166,8 @@ public class DriveTrain extends SubsystemBase {
               getRightVelocityMetersPerSec()),
           getLeftPositionMeters() - baseDistanceLeft,
           getRightPositionMeters() - baseDistanceRight);
-      Logger.getInstance().recordOutput("Odometry/RotationDegrees",
-          pose.getRotation().getDegrees());
-      Logger.getInstance().recordOutput("Odometry/XMeters", pose.getX());
-      Logger.getInstance().recordOutput("Odometry/YMeters", pose.getY());
+      Logger.getInstance().recordOutput("Odometry/Robot", new double[] {
+          pose.getX(), pose.getY(), pose.getRotation().getRadians()});
       field2d.setRobotPose(pose);
     }
 
@@ -248,6 +246,10 @@ public class DriveTrain extends SubsystemBase {
    * Adds a new vision measurement to update odometry.
    */
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
+    Logger.getInstance().recordOutput("Odometry/Ghost", new double[] {
+        pose.getX(), pose.getY(), pose.getRotation().getRadians()});
+    Logger.getInstance().recordOutput("Odometry/Vision",
+        new double[] {0.0, 0.0});
     odometry.addVisionMeasurement(pose, timestamp);
   }
 
